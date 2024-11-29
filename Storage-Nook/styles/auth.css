@@ -36,3 +36,35 @@ form {
     background-color: #45a049;
   }
   
+  .back-button {
+  display: block;
+  margin: 20px auto;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.back-button:hover {
+  background-color: #d32f2f;
+}
+
+.back-button {
+    display: block;
+    margin: 20px auto;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: center;
+  }
+  
+  .back-button:hover {
+    background-color: #d32f2f;
+  }
+  
