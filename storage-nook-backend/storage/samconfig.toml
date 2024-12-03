@@ -1,0 +1,9 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "storage-nook-facilitiesAPI-stack"
+resolve_s3 = true
+s3_prefix = "storage-nook-facilitiesAPI-stack"
+region = "eu-west-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

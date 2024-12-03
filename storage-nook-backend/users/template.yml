@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Cognito User Pool Setup for Storage Solution
+
+Resources:
+  # Cognito User Pool
+  StorageUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: StorageUserPool
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      MfaConfiguration: 'OFF'
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+          AttributeDataType: String
+
+  # Cognito User Pool Client
+  StorageUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: StorageNookAppClient
+      UserPoolId: !Ref StorageUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs:
+        - 'https://oauth.pstmn.io/v1/callback'
+      LogoutURLs:
+        - 'http://localhost'
+      AllowedOAuthFlows:
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      AllowedOAuthFlowsUserPoolClient: true
+
+  # Cognito User Pool Domain
+  StorageUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: storagenookapp
+      UserPoolId: !Ref StorageUserPool
+
+Outputs:
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref StorageUserPool
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref StorageUserPoolClient
+
+  UserPoolDomainUrl:
+    Description: Cognito User Pool Domain URL
+    Value: !Sub 'https://${StorageUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com'
+
+  DomainWellKnownEndpoint:
+      Description: Verify the .well-known configuration endpoint
+      Value: !Sub 'https://${StorageUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/.well-known/openid-configuration'

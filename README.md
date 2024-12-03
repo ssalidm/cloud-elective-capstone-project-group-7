@@ -1,1 +1,1 @@
-# cloud-elective-capstone-project-group-7
+# Cloud Elective Capstone Project (Group 7)
