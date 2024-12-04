@@ -19,7 +19,8 @@ body {
   
   h1 {
     margin-bottom: 20px;
-    color: #333;
+    color: white;
+    margin-left:100px;
   }
   
   .form-group {
@@ -62,4 +63,73 @@ body {
   
   /**********************************************************/
 
+  .navbar {
+    background: #333;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Make the navbar full width */
+    position: fixed; /* Position it fixed to the top */
+    top: 0; /* Position it at the top */
+    left: 10; /* Position it at the left */
+    z-index: 1000; /* Ensure it's above other content */
+    margin-right : 20px;
+}
+
+.navbar nav {
+    display: flex;
+    justify-content: flex-end; /* Align links to the right */
+}
+
+  .navbar nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+  }
+  
+  .navbar nav a:hover {
+    text-decoration: underline;
+  }
+  
+  .tiles-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .tile {
+    background: #f4f4f9;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex: 1;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
   
