@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Finances</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <header class="navbar">
+    <h1>Admin Dashboard</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="unit-management.html">Units</a>
+      <a href="customer-management.html">Customers</a>
+      <a href="finances.html">Finances</a>
+      <a href="index.html">Logout</a>
+    </nav>
+  </header>
+
+
+  <main>
+    <!-- Finance Overview -->
+    <section class="finance-summary">
+      <h2>Financial Overview</h2>
+      <div class="finance-cards">
+        <div class="card">
+          <h3>Total Revenue</h3>
+          <p>R150,000</p>
+        </div>
+        <div class="card">
+          <h3>Total Expenses</h3>
+          <p>R50,000</p>
+        </div>
+        <div class="card">
+          <h3>Net Profit</h3>
+          <p>R100,000</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Transaction Records -->
+    <section class="transactions-table">
+      <h2>Transaction Records</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Unit</th>
+            <th>Amount Paid</th>
+            <th>Payment Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2024-12-01</td>
+            <td>John Doe</td>
+            <td>Unit 101</td>
+            <td>R2,500</td>
+            <td>Paid</td>
+          </tr>
+          <tr>
+            <td>2024-12-02</td>
+            <td>Jane Smith</td>
+            <td>Unit 202</td>
+            <td>R3,000</td>
+            <td>Overdue</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
