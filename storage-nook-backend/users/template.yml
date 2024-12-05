@@ -73,3 +73,30 @@ Outputs:
   DomainWellKnownEndpoint:
       Description: Verify the .well-known configuration endpoint
       Value: !Sub 'https://${StorageUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/.well-known/openid-configuration'
+
+#_______________________________________________________________________________________________________________________
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: CustomerUserPool
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      Schema:
+        - AttributeDataType: String
+          Name: firstName
+          Required: true
+        - AttributeDataType: String
+          Name: lastName
+          Required: true
+      EmailVerificationSubject: Verify your email address
+      EmailVerificationMessage: 'Please click the link below to verify your email address: {####}'
+      SmsVerificationMessage: Your verification code is {####}
