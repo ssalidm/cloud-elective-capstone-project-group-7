@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Support</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <h1>Customer Support</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="unit-management.html">Units</a>
+      <a href="customer-management.html">Customers</a> =
+      <a href="finance.html">Finance</a>
+      <a href="index.html">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="support-container">
+      <h2>Manage Support Requests</h2>
+      
+      <div class="search-bar">
+        <label for="search">Search by Unit ID or Customer Name:</label>
+        <input type="text" id="search" placeholder="Enter Unit ID or Name">
+        <button class="search-btn">Search</button>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Unit ID</th>
+            <th>Customer Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>U001</td>
+            <td>John Doe</td>
+            <td>Reserved</td>
+            <td>
+              <button class="resolve-btn">Resolve Issue</button>
+            </td>
+          </tr>
+          <tr>
+            <td>U002</td>
+            <td>Jane Smith</td>
+            <td>Unavailable</td>
+            <td>
+              <button class="resolve-btn">Resolve Issue</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
