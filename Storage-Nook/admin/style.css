@@ -139,3 +139,75 @@ button {
 button:hover {
   background-color: #45a049;
 }
+
+/* ------------------------------------------------------------------- */
+.finance-summary {
+  margin: 20px;
+  text-align: center;
+}
+
+.finance-cards {
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 200px; /* Adjust width for card size */
+}
+
+.card h3 {
+  font-size: 1.2em;
+  color: #333;
+}
+
+.card p {
+  font-size: 1.5em;
+  color: #4caf50;
+  margin: 10px 0 0;
+}
+
+/* Transactions Table */
+.transactions-table {
+  margin: 20px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.transactions-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.transactions-table th {
+  background: #f4f4f9;
+  color: #333;
+}
+
+.transactions-table td {
+  color: #555;
+}
+
+/* Highlight for Overdue */
+.transactions-table td:last-child {
+  font-weight: bold;
+}
+
+.transactions-table td:last-child:contains("Overdue") {
+  color: red;
+}
