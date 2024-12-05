@@ -1,0 +1,219 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for Self-Storage Booking System
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.9
+
+Resources:
+  #########################################
+  # API Gateway
+  #########################################
+
+  ListFacilitiesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: ListFacilitiesApi
+      StageName: dev
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: arn:aws:cognito-idp:eu-west-1:476114118819:userpool/eu-west-1_G3Sk2lOEJ
+            Identity:
+              Headers:
+                - Authorization
+
+  #########################################
+  # DynamoDB Tables
+  #########################################
+
+  # Table for Storage Facilities
+  FacilitiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: FacilitiesTable
+      AttributeDefinitions:
+        - AttributeName: facilityId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: facilityId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  # Table for Bookings
+  BookingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BookingsTable
+      AttributeDefinitions:
+        - AttributeName: bookingId
+          AttributeType: S
+        - AttributeName: customerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: bookingId
+          KeyType: HASH
+        - AttributeName: customerId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  #########################################
+  # IAM Roles for Lambda Functions
+  #########################################
+
+  ListFacilitiesFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                  - dynamodb:PutItem
+                Resource: '*'
+
+  BookingFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: BookingTableAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable
+
+  #########################################
+  # Lambda Functions for Booking System
+  #########################################
+
+  # Add Booking Function
+  AddBookingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: add-booking-function
+      CodeUri: create_booking/
+      Handler: add_booking.lambda_handler
+      Role: !GetAtt BookingFunctionRole.Arn
+      Events:
+        AddBooking:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ListFacilitiesApi
+            Path: /bookings
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  # # Get Booking Function
+  GetBookingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: get-booking-function
+      CodeUri: create_booking/
+      Handler: get_booking.lambda_handler
+      Role: !GetAtt BookingFunctionRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
+      Events:
+        GetBooking:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ListFacilitiesApi
+            Path: /bookings/{bookingId}
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  # # Update Booking Status Function
+  UpdateBookingStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: update-booking-status-function
+      CodeUri: create_booking/
+      Handler: update_booking_status.lambda_handler
+      Role: !GetAtt BookingFunctionRole.Arn
+      Events:
+        UpdateBookingStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ListFacilitiesApi
+            Path: /bookings/{bookingId}/status
+            Method: put
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  # # Check Availability Function
+  CheckAvailabilityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: check-availability-function
+      CodeUri: create_booking/
+      Handler: check_availability.lambda_handler
+      Role: !GetAtt BookingFunctionRole.Arn
+      Events:
+        CheckAvailability:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ListFacilitiesApi
+            Path: /bookings/availability/{facilityId}
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  #########################################
+  # Outputs
+  #########################################
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL for the ListFacilitiesApi
+    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/facilities'
+
+  AddBookingUrl:
+    Description: URL for booking a storage unit
+    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings'
+
+  GetBookingUrl:
+    Description: URL for retrieving a booking by ID
+    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings/{bookingId}'
+
+  UpdateBookingStatusUrl:
+    Description: URL for updating booking status (e.g., cancellation)
+    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings/{bookingId}/status'
+
+  CheckAvailabilityUrl:
+    Description: URL for checking the availability of storage units
+    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings/availability/{facilityId}'
