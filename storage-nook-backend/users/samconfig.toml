@@ -1,8 +1,8 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "storage-nook-stack"
+stack_name = "storage-nook-userpool-stack"
 resolve_s3 = true
-s3_prefix = "storage-nook-stack"
+s3_prefix = "storage-nook-userpool-stack"
 region = "eu-west-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
