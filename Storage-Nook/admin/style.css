@@ -211,3 +211,15 @@ button:hover {
 .transactions-table td:last-child:contains("Overdue") {
   color: red;
 }
+
+#loading-spinner {
+  font-size: 16px;
+  color: #333;
+  margin-top: 10px;
+}
+
+#error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
