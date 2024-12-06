@@ -60,6 +60,15 @@ def lambda_handler(event, context):
     Create units for a specific storage type.
     """
     try:
+        # claims = event["requestContext"]["authorizer"]["claims"]
+        # groups = claims.get("cognito:groups", [])
+        # if "admin" not in groups:
+        #     return {
+        #         "statusCode": 403,
+        #         "body": json.dumps({"error": "Forbidden"}),
+        #         "headers": {"Content-Type": "application/json"},
+        #     }
+
         # Extract typeId from the path
         type_id = event["pathParameters"]["typeId"]
 

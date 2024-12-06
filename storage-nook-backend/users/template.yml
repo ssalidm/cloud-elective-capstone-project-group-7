@@ -35,7 +35,8 @@ Resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: StorageNookAppClient
-      UserPoolId: !Ref StorageUserPool
+      UserPoolId: 
+        Ref: StorageUserPool
       GenerateSecret: false
       ExplicitAuthFlows:
         - ALLOW_USER_PASSWORD_AUTH
@@ -61,77 +62,27 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       Domain: storagenookapp
-      UserPoolId: !Ref StorageUserPool
+      UserPoolId: 
+        Ref: StorageUserPool
 
-  #########################################
-  # Cognito User Pool Group
-  #########################################
-  CustomerGroup:
-    Type: AWS::Cognito::UserPoolGroup
-    Properties:
-      UserPoolId: !Ref StorageUserPool
-      GroupName: customer
-      Description: Default group for customer users
-
-  #########################################
-  # IAM Role for Post-Confirmation Function
-  #########################################
-  PostConfirmationFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Policies:
-        - PolicyName: CognitoAccessPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - cognito-idp:AdminAddUserToGroup
-                Resource: !GetAtt StorageUserPool.Arn
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: "*"
-
-  #########################################
-  # Post-Confirmation Lambda Function
-  #########################################
-  PostConfirmationFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: post-confirmation-group-function
-      CodeUri: src/api/auth/
-      Handler: post_confirmation.lambda_handler
-      Runtime: python3.9
-      Role: !GetAtt PostConfirmationFunctionRole.Arn
-      Environment:
-        Variables:
-          GROUP_NAME: customer
 
 Outputs:
   UserPoolId:
     Description: Cognito User Pool ID
-    Value: !Ref StorageUserPool
+    Value: 
+      Ref: StorageUserPool
 
   UserPoolClientId:
     Description: Cognito User Pool Client ID
-    Value: !Ref StorageUserPoolClient
+    Value: 
+      Ref: StorageUserPoolClient
 
   UserPoolDomainUrl:
     Description: Cognito User Pool Domain URL
-    Value: !Sub 'https://${StorageUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com'
+    Value:
+      Fn::Sub: 'https://${StorageUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com'
 
   DomainWellKnownEndpoint:
     Description: Verify the .well-known configuration endpoint
-    Value: !Sub 'https://${StorageUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/.well-known/openid-configuration'
+    Value:
+      Fn::Sub: 'https://${StorageUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/.well-known/openid-configuration'
