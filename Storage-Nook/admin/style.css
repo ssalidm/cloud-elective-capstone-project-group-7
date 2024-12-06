@@ -99,6 +99,7 @@ input:focus {
   display: flex;
   gap: 30px;
   padding: 20px;
+  justify-content: center;
 
 }
 
@@ -109,11 +110,28 @@ input:focus {
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   flex: 1;
-  min-width: 200px; /* Set a minimum width */
-  min-height: 200px; /* Set a minimum height */
-  position: relative; /* Allow positioning for icons */
+  min-width: 200px;
+  min-height: 200px; 
+  position: relative; 
 
 }
+
+.tile-icon {
+  width :100px ;
+  height:100px ;
+  margin-bottom : 10px;
+}
+
+.tile h2{
+  font-size:18px;
+  margin: 10px 0;
+}
+
+/* .tile p{
+  font-size: 16px;
+  color: #555;
+} */
+
 
 table {
   width: 100%;
