@@ -19,6 +19,27 @@
   </header>
 
   <main>
+     <!-- Search Box -->
+     <input type="text" id="search" placeholder="Search units..." onkeyup="searchUnits()">
+
+      <!-- Add Unit Form -->
+     <button id="add-unit-btn">Add Unit</button>
+
+     <div id="add-unit-form" style ="display: none;">
+        <h2>Add New Unit</h2>
+        <form id ="unit-form">
+          <label for="unit-id">Unit ID:</label>
+          <input type="text" id="unit-id" required>
+          <label for="status">Status:</label>
+          <input type="text" id="status" required>
+          <label for="price">Price:</label>
+          <input type="text" id="price" required>
+          <button type="submit">Add Unit</button>
+
+        </form>
+     </div>
+
+
     <table>
       <thead>
         <tr>
@@ -28,7 +49,7 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="unit-list">
         <tr>
           <td>001</td>
           <td>Available</td>
@@ -42,6 +63,6 @@
     </table>
   </main>
 
-  <script src="script.js"></script>
+  <script src="unit-management.js"></script>
 </body>
 </html>
