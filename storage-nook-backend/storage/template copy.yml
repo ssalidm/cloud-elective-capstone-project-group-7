@@ -1,0 +1,270 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for Storage Facilities
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.9
+
+Resources:
+  #########################################
+  # API Gateway
+  #########################################
+
+  StorageApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: StorageApi
+      StageName: dev
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: arn:aws:cognito-idp:eu-west-1:476114118819:userpool/eu-west-1_G3Sk2lOEJ
+            Identity:
+              Headers:
+                - Authorization
+
+
+  #########################################
+  # DynamoDB Table
+  #########################################
+
+  # FacilitiesTable:
+  #   Type: AWS::DynamoDB::Table
+  #   Properties:
+  #     TableName: FacilitiesTable
+  #     AttributeDefinitions:
+  #       - AttributeName: facilityId
+  #         AttributeType: S        
+  #       - AttributeName: unitId
+  #         AttributeType: S        
+  #       - AttributeName: location
+  #         AttributeType: S        
+  #     KeySchema:
+  #       - AttributeName: facilityId
+  #         KeyType: HASH
+  #       - AttributeName: unitId
+  #         KeyType: RANGE
+  #     BillingMode: PAY_PER_REQUEST
+  #     GlobalSecondaryIndexes:
+  #       - IndexName: LocationIndex
+  #         KeySchema:
+  #           - AttributeName: location
+  #             KeyType: HASH
+  #         Projection:
+  #           ProjectionType: ALL
+
+  StorageTypesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: StorageTypesTable
+      AttributeDefinitions:
+        - AttributeName: typeId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: typeId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  #########################################
+  # IAM Role for Lambda Function
+  #########################################
+
+  # ListFacilitiesFunctionRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service:
+  #               - lambda.amazonaws.com
+  #           Action:
+  #             - sts:AssumeRole
+  #     ManagedPolicyArns:
+  #       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  #     Policies:
+  #       - PolicyName: LambdaDynamoDBAccess
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #             - Effect: Allow
+  #               Action:
+  #                 - dynamodb:Scan
+  #                 - dynamodb:Query
+  #               Resource: '*'
+    
+  StorageFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: StorageDynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/StorageTypesTable
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/StorageUnitsTable
+
+  CreateStorageTypeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: create-storage-type-function
+      CodeUri: src/api/storage_types/
+      Handler: create_storage_type.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt StorageFunctionRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: StorageTypesTable
+      Events:
+        CreateStorageType:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StorageApi
+            Path: /storage-types
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+
+  #########################################
+  # Add Facility Lambda Function
+  #########################################
+
+  # AddFacilityFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: add-facility-function
+  #     CodeUri: src/api/facilities/
+  #     Handler: add_facility.lambda_handler
+  #     Role: !GetAtt FacilitiesFunctionRole.Arn
+  #     Events:
+  #       AddFacility:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId: !Ref ListFacilitiesApi
+  #           Path: /facilities
+  #           Method: post
+  #           Auth:
+  #             Authorizer: CognitoAuthorizer
+
+  #########################################
+  # GET /facilities Function
+  #########################################
+
+  # GetFacilitiesFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: get-facilities-function
+  #     CodeUri: src/api/facilities/
+  #     Handler: get_facilities.lambda_handler
+  #     Runtime: python3.9
+  #     Role: !GetAtt FacilitiesFunctionRole.Arn
+  #     Environment:
+  #       Variables:
+  #         TABLE_NAME: FacilitiesTable
+  #     Events:
+  #       GetFacilities:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId: !Ref ListFacilitiesApi
+  #           Path: /facilities
+  #           Method: get
+  #           Auth:
+  #             Authorizer: CognitoAuthorizer
+
+  ###################################################
+  # POST /facilities/add_units_by_facilities Function
+  ###################################################
+
+  # AddUnitsToFacilityFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: add-units-to-facility-function
+  #     CodeUri: src/api/facilities/
+  #     Handler: add_units_to_facility.lambda_handler
+  #     Runtime: python3.9
+  #     Role: !GetAtt FacilitiesFunctionRole.Arn
+  #     Environment:
+  #       Variables:
+  #         TABLE_NAME: FacilitiesTable
+  #     Events:
+  #       AddUnitsToFacility:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId: !Ref ListFacilitiesApi
+  #           Path: /facilities/{facilityId}/units
+  #           Method: post
+  #           Auth:
+  #             Authorizer: CognitoAuthorizer
+
+
+  ###################################################
+  # GET /facilities/get_units_by_facilities Function
+  ###################################################
+
+  # GetUnitsByFacilityFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: get-units-by-facility-function
+  #     CodeUri: src/api/facilities/
+  #     Handler: get_units_by_facility.lambda_handler
+  #     Runtime: python3.9
+  #     Role: !GetAtt FacilitiesFunctionRole.Arn
+  #     Environment:
+  #       Variables:
+  #         TABLE_NAME: FacilitiesTable
+  #     Events:
+  #       GetUnitsByFacility:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId: !Ref ListFacilitiesApi
+  #           Path: /facilities/{facilityId}/units
+  #           Method: get
+  #           Auth:
+  #             Authorizer: CognitoAuthorizer
+
+Outputs:
+  ApiEndpoint:
+    Description: URL for the Storage API Gateway
+    Value: !Sub "https://${StorageApi}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+    Export:
+      Name: StorageApiEndpoint
+
+  StorageTypesTableName:
+    Description: Name of the DynamoDB table for storage types
+    Value: !Ref StorageTypesTable
+    Export:
+      Name: StorageTypesTableName
+
+  StorageUnitsTableName:
+    Description: Name of the DynamoDB table for storage units
+    Value: !Ref StorageUnitsTable
+    Export:
+      Name: StorageUnitsTableName
+
+  StorageFunctionRoleArn:
+    Description: ARN of the IAM role used by Lambda functions
+    Value: !GetAtt StorageFunctionRole.Arn
+    Export:
+      Name: StorageFunctionRoleArn
