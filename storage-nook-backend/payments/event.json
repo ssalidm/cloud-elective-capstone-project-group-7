@@ -1,0 +1,7 @@
+{
+    "payment_method": "credit_card",
+    "amount": 100.0,
+    "card_number": "4111111111111111",
+    "expiry_date": "12/24",
+    "cvv": "123"
+    }
