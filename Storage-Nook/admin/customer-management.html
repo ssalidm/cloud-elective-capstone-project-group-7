@@ -19,6 +19,20 @@
   </header>
 
   <main>
+    <button id="add-customer-btn">Add Customer</button>
+    <form id="add-customer-form" style="display: none;">
+      <label for="customer-name">Name:</label>
+      <input type="text" id="customer-name" required>
+      
+      <label for="email">Email:</label>
+      <input type="email" id="email" required>
+      
+      <label for="booking-history">Booking History:</label>
+      <input type="text" id="booking-history">
+      
+      <button type="submit">Save</button>
+    </form>
+  
     <table>
       <thead>
         <tr>
@@ -28,20 +42,21 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="customer-list">
         <tr>
           <td>John Doe</td>
           <td>johndoe@example.com</td>
           <td>Unit 001, 3 months</td>
           <td>
-            <button>Notify</button>
-            <button>View Details</button>
+            <button class="notify-btn">Notify</button>
+            <button class="view-details-btn">View Details</button>
           </td>
         </tr>
       </tbody>
     </table>
   </main>
+  
 
-  <script src="script.js"></script>
+  <script src="customer-management.js"></script>
 </body>
 </html>
