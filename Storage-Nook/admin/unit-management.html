@@ -19,27 +19,27 @@
   </header>
 
   <main>
-     <!-- Search Box -->
-     <input type="text" id="search" placeholder="Search units..." onkeyup="searchUnits()">
+    <!-- Search Box -->
+    <!-- <input type="text" id="search" placeholder="Search units..." onkeyup="searchUnits()"> -->
 
-      <!-- Add Unit Form -->
-     <button id="add-unit-btn">Add Unit</button>
+    <!-- Add Unit Button (This button should only appear once) -->
+    <button id="add-unit-btn">Add Unit</button>
 
-     <div id="add-unit-form" style ="display: none;">
-        <h2>Add New Unit</h2>
-        <form id ="unit-form">
-          <label for="unit-id">Unit ID:</label>
-          <input type="text" id="unit-id" required>
-          <label for="status">Status:</label>
-          <input type="text" id="status" required>
-          <label for="price">Price:</label>
-          <input type="text" id="price" required>
-          <button type="submit">Add Unit</button>
+    <!-- Add Unit Form -->
+    <div id="add-unit-form" style="display: none;">
+      <h2>Add New Unit</h2>
+      <form id="unit-form">
+        <label for="unit-id">Unit ID:</label>
+        <input type="text" id="unit-id" required>
+        <label for="status">Status:</label>
+        <input type="text" id="status" required>
+        <label for="price">Price:</label>
+        <input type="text" id="price" required>
+        <button type="submit">Add Unit</button>
+      </form>
+    </div>
 
-        </form>
-     </div>
-
-
+    <!-- Unit List Table -->
     <table>
       <thead>
         <tr>
