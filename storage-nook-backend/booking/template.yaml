@@ -1,48 +1,21 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: SAM Template for Self-Storage Booking System
+Description: SAM Template for Bookings Management
 
 Globals:
   Function:
     Timeout: 30
     Runtime: python3.9
+  
+Parameters:
+  RestApiId:
+    Type: String
+    Description: API Gateway ID for Storage API
 
 Resources:
   #########################################
-  # API Gateway
+  # DynamoDB Table for Bookings
   #########################################
-
-  ListFacilitiesApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: ListFacilitiesApi
-      StageName: dev
-      Auth:
-        Authorizers:
-          CognitoAuthorizer:
-            UserPoolArn: arn:aws:cognito-idp:eu-west-1:476114118819:userpool/eu-west-1_G3Sk2lOEJ
-            Identity:
-              Headers:
-                - Authorization
-
-  #########################################
-  # DynamoDB Tables
-  #########################################
-
-  # Table for Storage Facilities
-  FacilitiesTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: FacilitiesTable
-      AttributeDefinitions:
-        - AttributeName: facilityId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: facilityId
-          KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
-
-  # Table for Bookings
   BookingsTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -55,165 +28,159 @@ Resources:
       KeySchema:
         - AttributeName: bookingId
           KeyType: HASH
-        - AttributeName: customerId
-          KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: CustomerIndex
+          KeySchema:
+            - AttributeName: customerId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
 
   #########################################
-  # IAM Roles for Lambda Functions
+  # IAM Role for Lambda Functions
   #########################################
-
-  ListFacilitiesFunctionRole:
+  BookingsFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: LambdaDynamoDBAccess
+        - PolicyName: DynamoDBAccess
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
                   - dynamodb:Scan
-                  - dynamodb:Query
-                  - dynamodb:PutItem
-                Resource: '*'
-
-  BookingFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: BookingTableAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - dynamodb:PutItem
-                  - dynamodb:Query
-                Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource:
+                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable
+                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable/index/*
 
   #########################################
-  # Lambda Functions for Booking System
+  # Create Booking Function
   #########################################
-
-  # Add Booking Function
-  AddBookingFunction:
+  CreateBookingFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: add-booking-function
-      CodeUri: create_booking/
-      Handler: add_booking.lambda_handler
-      Role: !GetAtt BookingFunctionRole.Arn
+      FunctionName: create-booking-function
+      CodeUri: src/api/bookings/
+      Handler: create_booking.lambda_handler
+      Role: 
+        Fn::GetAtt:
+          - BookingsFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
       Events:
-        AddBooking:
+        CreateBooking:
           Type: Api
           Properties:
-            RestApiId: !Ref ListFacilitiesApi
+            RestApiId: 
+              Ref: RestApiId
             Path: /bookings
             Method: post
             Auth:
               Authorizer: CognitoAuthorizer
 
-  # # Get Booking Function
-  GetBookingFunction:
+  #########################################
+  # Get Customer Bookings Function
+  #########################################
+  GetCustomerBookingsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: get-booking-function
-      CodeUri: create_booking/
-      Handler: get_booking.lambda_handler
-      Role: !GetAtt BookingFunctionRole.Arn
+      FunctionName: get-customer-bookings-function
+      CodeUri: src/api/bookings/
+      Handler: get_customer_bookings.lambda_handler
+      Role:
+        Fn::GetAtt:
+          - BookingsFunctionRole
+          - Arn
       Environment:
         Variables:
           TABLE_NAME: BookingsTable
       Events:
-        GetBooking:
+        GetCustomerBookings:
           Type: Api
           Properties:
-            RestApiId: !Ref ListFacilitiesApi
-            Path: /bookings/{bookingId}
+            RestApiId:
+              Ref: RestApiId
+            Path: /customers/{customerId}/bookings
             Method: get
             Auth:
               Authorizer: CognitoAuthorizer
 
-  # # Update Booking Status Function
-  UpdateBookingStatusFunction:
+  #########################################
+  # Update Booking Function
+  #########################################
+  UpdateBookingFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: update-booking-status-function
-      CodeUri: create_booking/
-      Handler: update_booking_status.lambda_handler
-      Role: !GetAtt BookingFunctionRole.Arn
+      FunctionName: update-booking-function
+      CodeUri: src/api/bookings/
+      Handler: update_booking.lambda_handler
+      Role: 
+        Fn::GetAtt:
+          - BookingsFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
       Events:
-        UpdateBookingStatus:
+        UpdateBooking:
           Type: Api
           Properties:
-            RestApiId: !Ref ListFacilitiesApi
-            Path: /bookings/{bookingId}/status
+            RestApiId:
+              Ref: RestApiId
+            Path: /bookings/{bookingId}
             Method: put
             Auth:
               Authorizer: CognitoAuthorizer
 
-  # # Check Availability Function
-  CheckAvailabilityFunction:
+  #########################################
+  # Cancel Booking Function
+  #########################################
+  CancelBookingFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: check-availability-function
-      CodeUri: create_booking/
-      Handler: check_availability.lambda_handler
-      Role: !GetAtt BookingFunctionRole.Arn
+      FunctionName: cancel-booking-function
+      CodeUri: src/api/bookings/
+      Handler: cancel_booking.lambda_handler
+      Role: 
+        Fn::GetAtt:
+          - BookingsFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
       Events:
-        CheckAvailability:
+        CancelBooking:
           Type: Api
           Properties:
-            RestApiId: !Ref ListFacilitiesApi
-            Path: /bookings/availability/{facilityId}
-            Method: get
+            RestApiId:
+              Ref: RestApiId
+            Path: /bookings/{bookingId}
+            Method: delete
             Auth:
               Authorizer: CognitoAuthorizer
 
-  #########################################
-  # Outputs
-  #########################################
-
 Outputs:
-  ApiUrl:
-    Description: API Gateway endpoint URL for the ListFacilitiesApi
-    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/facilities'
-
-  AddBookingUrl:
-    Description: URL for booking a storage unit
-    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings'
-
-  GetBookingUrl:
-    Description: URL for retrieving a booking by ID
-    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings/{bookingId}'
-
-  UpdateBookingStatusUrl:
-    Description: URL for updating booking status (e.g., cancellation)
-    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings/{bookingId}/status'
-
-  CheckAvailabilityUrl:
-    Description: URL for checking the availability of storage units
-    Value: !Sub 'https://${ListFacilitiesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/bookings/availability/{facilityId}'
+  BookingsTableName:
+    Description: Name of the DynamoDB table for bookings
+    Value: 
+      Ref: BookingsTable
+    Export:
+      Name: BookingsTableName

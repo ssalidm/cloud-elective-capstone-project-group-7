@@ -9,19 +9,6 @@ Resources:
   #########################################
   # API Gateway
   #########################################
-  # AdminEndpointsApi:
-  #   Type: AWS::Serverless::Api
-  #   Properties:
-  #     Name: AdminEndpointsApi
-  #     StageName: dev
-  #     Auth:
-  #       Authorizers:
-  #         CognitoAuthorizer:
-  #           UserPoolArn: arn:aws:cognito-idp:eu-west-1:476114118819:userpool/eu-west-1_i7fFDRkBC
-  #           Identity:
-  #             Headers:
-  #               - Authorization
-
   StorageApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -35,9 +22,9 @@ Resources:
               Headers:
                 - Authorization
 
-    #########################################
-    # DynamoDB Tables
-    #########################################
+  #########################################
+  # DynamoDB Tables
+  #########################################
   StorageTypesTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -78,11 +65,32 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
+  BookingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BookingsTable
+      AttributeDefinitions:
+        - AttributeName: bookingId
+          AttributeType: S
+        - AttributeName: customerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: bookingId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: CustomerIndex
+          KeySchema:
+            - AttributeName: customerId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
 
   #########################################
   # Storage Function Role
   #########################################      
-  StorageFunctionRole:
+  StorageNookFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -97,7 +105,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: StorageDynamoDBAccess
+        - PolicyName: DynamoDBAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -114,6 +122,8 @@ Resources:
                   - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/StorageTypesTable
                   - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/StorageUnitsTable
                   - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/UserProfilesTable
+                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable
+                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable/index/CustomerIndex
 
   #########################################
   # Create Storage Type Function
@@ -127,7 +137,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -155,7 +165,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -184,7 +194,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -212,7 +222,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -240,7 +250,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -257,7 +267,7 @@ Resources:
               Authorizer: CognitoAuthorizer
 
   #########################################
-  # Update Unit Function
+  # Delete Unit Function
   #########################################
   DeleteUnitFunction:
     Type: AWS::Serverless::Function
@@ -268,7 +278,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -298,7 +308,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -327,7 +337,7 @@ Resources:
       Runtime: python3.9
       Role:
         Fn::GetAtt:
-          - StorageFunctionRole
+          - StorageNookFunctionRole
           - Arn
       Environment:
         Variables:
@@ -343,22 +353,134 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
+  #########################################
+  # Create Customer Booking Function
+  #########################################                
+  CreateBookingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: create-booking-function
+      CodeUri: src/api/bookings/
+      Handler: create_booking.lambda_handler
+      Role:
+        Fn::GetAtt:
+          - StorageNookFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
+          UNITS_TABLE: StorageUnitsTable
+      Events:
+        CreateBooking:
+          Type: Api
+          Properties:
+            RestApiId: 
+              Ref: StorageApi
+            Path: /bookings
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  #########################################
+  # Get Customer Bookings Function
+  #########################################
+  GetCustomerBookingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: get-customer-bookings-function
+      CodeUri: src/api/bookings/
+      Handler: get_customer_bookings.lambda_handler
+      Role: 
+        Fn::GetAtt:
+          - StorageNookFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
+          UNITS_TABLE: StorageUnitsTable
+      Events:
+        GetCustomerBookings:
+          Type: Api
+          Properties:
+            RestApiId: 
+              Ref: StorageApi
+            Path: /customers/{customerId}/bookings
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  #########################################
+  # Update Booking Function
+  #########################################
+  UpdateBookingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: update-booking-function
+      CodeUri: src/api/bookings/
+      Handler: update_booking.lambda_handler
+      Role: 
+        Fn::GetAtt: 
+          - StorageNookFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
+          UNITS_TABLE: StorageUnitsTable
+      Events:
+        UpdateBooking:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: StorageApi
+            Path: /bookings/{bookingId}
+            Method: put
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  #########################################
+  # Cancel Booking Function
+  #########################################
+  CancelBookingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: cancel-booking-function
+      CodeUri: src/api/bookings/
+      Handler: cancel_booking.lambda_handler
+      Role: 
+        Fn::GetAtt:
+          - StorageNookFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
+          UNITS_TABLE: StorageUnitsTable
+      Events:
+        CancelBooking:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: StorageApi
+            Path: /bookings/{bookingId}/cancel
+            Method: put
+            Auth:
+              Authorizer: CognitoAuthorizer
+
 #########################################
 # Outputs
 #########################################
 Outputs:
+  StorageApiId:
+    Description: ID of the Storage API Gateway
+    Value:
+        Ref: StorageApi
+    Export:
+      Name: StorageApiId
   ApiEndpoint:
     Description: URL for the Storage API Gateway
     Value:
       Fn::Sub: https://${StorageApi}.execute-api.${AWS::Region}.amazonaws.com/dev/
     Export:
       Name: StorageApiEndpoint
-  # AdminApiEndpoint:
-  #   Description: URL for the Admin API Gateway
-  #   Value:
-  #     Fn::Sub: https://${AdminEndpointsApi}.execute-api.${AWS::Region}.amazonaws.com/dev/
-  #   Export:
-  #     Name: AdminApiEndpoint
   StorageTypesTableName:
     Description: Name of the DynamoDB table for storage types
     Value:
@@ -371,11 +493,17 @@ Outputs:
       Ref: StorageUnitsTable
     Export:
       Name: StorageUnitsTableName
-  StorageFunctionRoleArn:
+  StorageNookFunctionRoleArn:
     Description: ARN of the IAM role used by Lambda functions
     Value:
       Fn::GetAtt:
-        - StorageFunctionRole
+        - StorageNookFunctionRole
         - Arn
     Export:
-      Name: StorageFunctionRoleArn
+      Name: StorageNookFunctionRoleArn
+  BookingsTableName:
+    Description: Name of the DynamoDB table for bookings
+    Value: 
+      Ref: BookingsTable
+    Export:
+      Name: BookingsTableName
