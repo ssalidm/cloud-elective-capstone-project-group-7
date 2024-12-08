@@ -8,21 +8,12 @@
 </head>
 <body>
   <div class="login-container">
-    <h1>Admin Login</h1>
-    <form id="admin-login-form">
-      <div class="form-group">
-        <label for="admin-email">Email</label>
-        <input type="email" id="admin-email" name="email" placeholder="Enter your email" required>
-      </div>
-      <div class="form-group">
-        <label for="admin-password">Password</label>
-        <input type="password" id="admin-password" name="password" placeholder="Enter your password" required>
-      </div>
-      <!-- Error message container -->
-      <div id="error-message" style="color: red; display: none;"></div>
-      <button type="submit" class="login-btn">Login</button>
-      <div id="loading-spinner" style="display: none;">Loading...</div>
-    </form>
+    <h1>Admin Access</h1>
+    <p>Log in or sign up to manage your admin dashboard.</p>
+    <div class="auth-buttons">
+      <button class="login-btn" id="login-button">Login</button>
+      <button class="signup-btn" id="signup-button">Sign Up</button>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>

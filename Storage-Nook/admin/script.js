@@ -1,28 +1,17 @@
-document.getElementById('admin-login-form').addEventListener('submit', function (event) {
-  event.preventDefault();
+// Cognito URLs
+const cognitoDomain = "https://storagenookapp.auth.eu-west-1.amazoncognito.com";
+const clientId = "46h9jukegvt1lk4bp4v5p4p029"; 
+const redirectUri = "https://your-production-url/callback"; // Replace with your actual callback URL
+const responseType = "token"; 
+const scope = "openid email profile"; 
 
+// Attach event listeners to buttons
+document.getElementById('login-button').addEventListener('click', () => {
+  const loginUrl = `${cognitoDomain}/login?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
+  window.location.href = loginUrl;
+});
 
-  const email = document.getElementById('admin-email').value;
-  const password = document.getElementById('admin-password').value;
-
-  // loading spinner
-  const loadingSpinner = document.getElementById('loading-spinner');
-  loadingSpinner.style.display = 'block';
-
-  // Mock authentication 
-  setTimeout(() => {  //mock api call
-    if (email === 'admin@example.com' && password === 'password123') {
-      alert('Login successful!');
-      // Redirect to the admin dashboard 
-      window.location.href = "dashboard.html";
-    } else {
-      // Hide the loading spinner
-      loadingSpinner.style.display = 'none';
-      
-      // Display the error message in the div
-      const errorMessage = document.getElementById('error-message');
-      errorMessage.textContent = 'Invalid email or password!';
-      errorMessage.style.display = 'block';
-    }
-  }, 1000); // Simulate a 1 second delay
+document.getElementById('signup-button').addEventListener('click', () => {
+  const signupUrl = `${cognitoDomain}/signup?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
+  window.location.href = signupUrl;
 });
