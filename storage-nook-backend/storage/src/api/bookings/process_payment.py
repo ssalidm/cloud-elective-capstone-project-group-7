@@ -6,12 +6,13 @@ dynamodb = boto3.resource("dynamodb")
 bookings_table = dynamodb.Table(os.environ["BOOKINGS_TABLE"])
 profiles_table = dynamodb.Table(os.environ["PROFILES_TABLE"])
 
+
 def lambda_handler(event, context):
     try:
         # Get user details from the token
         claims = event["requestContext"]["authorizer"]["claims"]
         user_id = claims["sub"]
-        
+
         body = json.loads(event["body"])
         booking_id = event["pathParameters"]["bookingId"]
         payment_method_type = body.get("paymentMethodType")
@@ -20,6 +21,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "Missing userId or paymentMethodType"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Fetch user profile
@@ -28,15 +34,27 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 404,
                 "body": json.dumps({"error": "User not found"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Find payment method
         payment_methods = profile.get("paymentMethods", [])
-        payment_method = next((pm for pm in payment_methods if pm["type"] == payment_method_type), None)
+        payment_method = next(
+            (pm for pm in payment_methods if pm["type"] == payment_method_type), None
+        )
         if not payment_method:
             return {
                 "statusCode": 404,
                 "body": json.dumps({"error": "Payment method not found"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Fetch booking
@@ -45,6 +63,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 404,
                 "body": json.dumps({"error": "Booking not found"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Simulate payment
@@ -52,6 +75,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "Booking is already paid"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         booking["status"] = "Paid"
@@ -66,7 +94,14 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
-            "body": json.dumps({"message": "Payment successful", "paymentMethod": payment_method}),
+            "body": json.dumps(
+                {"message": "Payment successful", "paymentMethod": payment_method}
+            ),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
 
     except Exception as e:
@@ -74,4 +109,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Internal server error"}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }

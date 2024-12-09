@@ -11,6 +11,19 @@ def lambda_handler(event, context):
     Update the details of a specific storage unit.
     """
     try:
+        claims = event["requestContext"]["authorizer"]["claims"]
+        groups = claims.get("cognito:groups", [])
+        if "admin" not in groups:
+            return {
+                "statusCode": 403,
+                "body": json.dumps({"error": "Forbidden"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "PUT",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
+            }
+
         # Extract unitId from path parameters
         unit_id = event["pathParameters"]["unitId"]
 
@@ -22,7 +35,7 @@ def lambda_handler(event, context):
                 "body": json.dumps({"error": "Unit not found"}),
                 "headers": {
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Methods": "PUT",
                     "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 },
             }
@@ -49,7 +62,7 @@ def lambda_handler(event, context):
                 "body": json.dumps({"error": "No valid fields to update"}),
                 "headers": {
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Methods": "PUT",
                     "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 },
             }
@@ -75,7 +88,7 @@ def lambda_handler(event, context):
             ),
             "headers": {
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Methods": "PUT",
                 "Access-Control-Allow-Headers": "Content-Type,Authorization",
             },
         }
@@ -87,7 +100,7 @@ def lambda_handler(event, context):
             "body": json.dumps({"error": "Internal server error"}),
             "headers": {
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Methods": "PUT",
                 "Access-Control-Allow-Headers": "Content-Type,Authorization",
             },
         }

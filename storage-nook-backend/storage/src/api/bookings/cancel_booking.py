@@ -8,12 +8,14 @@ dynamodb = boto3.resource("dynamodb")
 bookings_table = dynamodb.Table(os.environ["TABLE_NAME"])
 units_table = dynamodb.Table(os.environ["UNITS_TABLE"])
 
+
 def get_booking(booking_id):
     """
     Retrieve a booking by ID.
     """
     response = bookings_table.get_item(Key={"bookingId": booking_id})
     return response.get("Item", {})
+
 
 def lambda_handler(event, context):
     """
@@ -30,7 +32,12 @@ def lambda_handler(event, context):
         if not booking:
             return {
                 "statusCode": 404,
-                "body": json.dumps({"error": "Booking not found"})
+                "body": json.dumps({"error": "Booking not found"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "PUT",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Extract necessary details
@@ -44,9 +51,16 @@ def lambda_handler(event, context):
         if cancellation_date > latest_cancellation_date:
             return {
                 "statusCode": 400,
-                "body": json.dumps({
-                    "error": f"Cancellation requires at least {notice_period} days' notice."
-                })
+                "body": json.dumps(
+                    {
+                        "error": f"Cancellation requires at least {notice_period} days' notice."
+                    }
+                ),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "PUT",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Update booking status and unit availability
@@ -66,12 +80,22 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
-            "body": json.dumps({"message": "Cancellation successful"})
+            "body": json.dumps({"message": "Cancellation successful"}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "PUT",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
 
     except Exception as e:
         print(f"Error: {e}")
         return {
             "statusCode": 500,
-            "body": json.dumps({"error": "Internal server error"})
+            "body": json.dumps({"error": "Internal server error"}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "PUT",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }

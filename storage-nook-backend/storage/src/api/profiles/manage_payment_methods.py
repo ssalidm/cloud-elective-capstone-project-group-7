@@ -6,20 +6,30 @@ from uuid import uuid4
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
+
 def lambda_handler(event, context):
     try:
         # Get user details from the token
         claims = event["requestContext"]["authorizer"]["claims"]
         user_id = claims["sub"]
-        
+
         body = json.loads(event["body"])
         # user_id = event["pathParameters"]["userId"]
-        payment_method = body.get("paymentMethod")       
+        payment_method = body.get("paymentMethod")
 
-        if not payment_method or "type" not in payment_method or "details" not in payment_method:
+        if (
+            not payment_method
+            or "type" not in payment_method
+            or "details" not in payment_method
+        ):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "Invalid payment method data"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         payment_method["methodId"] = str(uuid4())
@@ -36,7 +46,17 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 201,
-            "body": json.dumps({"message": "Payment method added successfully", "paymentMethods": response["Attributes"].get("paymentMethods", [])}),
+            "body": json.dumps(
+                {
+                    "message": "Payment method added successfully",
+                    "paymentMethods": response["Attributes"].get("paymentMethods", []),
+                }
+            ),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
 
     except Exception as e:
@@ -44,4 +64,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Internal server error"}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }

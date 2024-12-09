@@ -2,24 +2,24 @@ import json
 import boto3
 import os
 
+# Initialize DynamoDB resource
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ["TABLE_NAME"])
+bookings_table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 
 def lambda_handler(event, context):
+    """
+    Retrieve bookings for the authenticated user.
+    """
     try:
-        # Get user ID from the token
+        # Extract the userId (customerId) from the request context
         claims = event["requestContext"]["authorizer"]["claims"]
-        user_id = claims["sub"]  # Cognito user ID
+        customer_id = claims.get("sub")  # Cognito assigns user ID to 'sub'
 
-        # Fetch profile from DynamoDB
-        response = table.get_item(Key={"userId": user_id})
-        profile = response.get("Item")
-
-        if not profile:
+        if not customer_id:
             return {
-                "statusCode": 404,
-                "body": json.dumps({"error": "Profile not found"}),
+                "statusCode": 403,
+                "body": json.dumps({"error": "User is not authorized"}),
                 "headers": {
                     "Access-Control-Allow-Origin": "*",
                     "Access-Control-Allow-Methods": "GET",
@@ -27,14 +27,20 @@ def lambda_handler(event, context):
                 },
             }
 
+        # Query the bookings table using the customerId
+        response = bookings_table.query(
+            IndexName="CustomerIndex",
+            KeyConditionExpression=boto3.dynamodb.conditions.Key("customerId").eq(
+                customer_id
+            ),
+        )
+
+        # Return the list of bookings
+        bookings = response.get("Items", [])
         return {
             "statusCode": 200,
-            "body": json.dumps({"profile": profile}),
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            },
+            "body": json.dumps(bookings),
+            "headers": {"Content-Type": "application/json"},
         }
 
     except Exception as e:

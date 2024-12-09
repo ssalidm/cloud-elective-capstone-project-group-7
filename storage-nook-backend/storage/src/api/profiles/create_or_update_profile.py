@@ -43,7 +43,11 @@ def lambda_handler(event, context):
             "body": json.dumps(
                 {"message": "Profile updated successfully", "profile": profile}
             ),
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "PUT",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
 
     except ClientError as e:
@@ -51,5 +55,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Internal server error"}),
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "PUT",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }

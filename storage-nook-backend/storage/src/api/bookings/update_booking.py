@@ -19,10 +19,22 @@ def lambda_handler(event, context):
         updates = body.get("updates", {})
 
         if not updates:
-            return {"statusCode": 400, "body": json.dumps({"error": "No updates provided"})}
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "No updates provided"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "PUT",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
+            }
 
-        update_expression = "SET " + ", ".join(f"{key} = :{key}" for key in updates.keys())
-        expression_attribute_values = {f":{key}": value for key, value in updates.items()}
+        update_expression = "SET " + ", ".join(
+            f"{key} = :{key}" for key in updates.keys()
+        )
+        expression_attribute_values = {
+            f":{key}": value for key, value in updates.items()
+        }
 
         bookings_table.update_item(
             Key={"bookingId": booking_id},
@@ -30,8 +42,24 @@ def lambda_handler(event, context):
             ExpressionAttributeValues=expression_attribute_values,
         )
 
-        return {"statusCode": 200, "body": json.dumps({"message": "Booking updated successfully"})}
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Booking updated successfully"}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "PUT",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
+        }
 
     except Exception as e:
         print(f"Error: {e}")
-        return {"statusCode": 500, "body": json.dumps({"error": "Internal server error"})}
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Internal server error"}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "PUT",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
+        }

@@ -60,14 +60,18 @@ def lambda_handler(event, context):
     Create units for a specific storage type.
     """
     try:
-        # claims = event["requestContext"]["authorizer"]["claims"]
-        # groups = claims.get("cognito:groups", [])
-        # if "admin" not in groups:
-        #     return {
-        #         "statusCode": 403,
-        #         "body": json.dumps({"error": "Forbidden"}),
-        #         "headers": {"Content-Type": "application/json"},
-        #     }
+        claims = event["requestContext"]["authorizer"]["claims"]
+        groups = claims.get("cognito:groups", [])
+        if "admin" not in groups:
+            return {
+                "statusCode": 403,
+                "body": json.dumps({"error": "Forbidden"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
+            }
 
         # Extract typeId from the path
         type_id = event["pathParameters"]["typeId"]
@@ -77,7 +81,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": f"Storage type {type_id} does not exist"}),
-                "headers": {"Content-Type": "application/json"},
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Parse the request body
@@ -88,7 +96,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "No units provided"}),
-                "headers": {"Content-Type": "application/json"},
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Precompute unit IDs
@@ -113,7 +125,11 @@ def lambda_handler(event, context):
         return {
             "statusCode": 201,
             "body": json.dumps({"message": "Units created successfully"}),
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
 
     except Exception as e:
@@ -121,5 +137,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Internal server error"}),
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }

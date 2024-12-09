@@ -69,6 +69,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "Missing required fields"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Convert dates to datetime objects
@@ -80,6 +85,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "Invalid booking duration"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Retrieve pricing and unit status
@@ -88,6 +98,11 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": f"Unit {unit_id} is not available"}),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
             }
 
         # Calculate total price and notice period
@@ -124,6 +139,11 @@ def lambda_handler(event, context):
             "body": json.dumps(
                 {"message": "Booking created successfully", "bookingId": booking_item}
             ),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
 
     except Exception as e:
@@ -131,4 +151,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Internal server error"}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
