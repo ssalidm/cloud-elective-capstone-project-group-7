@@ -9,24 +9,23 @@ bookings_table = dynamodb.Table(os.environ["TABLE_NAME"])
 units_table = dynamodb.Table(os.environ["UNITS_TABLE"])
 
 
-def get_pricing_for_unit(unit_id, type_id):
+def get_pricing_for_unit(unit_id):
     """
     Retrieve pricing details for a specific unit.
     """
-    response = units_table.get_item(Key={"unitId": unit_id, "typeId": type_id})
+    response = units_table.get_item(Key={"unitId": unit_id})
     item = response.get("Item", {})
     pricing = item.get("pricing", {})
 
     # Ensure pricing values are properly parsed
     pricing = {key: float(value) for key, value in pricing.items() if value}
-    return pricing, item.get("status", "Reserved")
+    return pricing, item.get("status", "Unavailable")
 
 
 def calculate_price(pricing, duration_in_days):
     """
     Calculate total price based on duration.
     """
-    # Convert pricing to floats
     per_day = float(pricing.get("perDay", 0))
     per_week = float(pricing.get("perWeek", 0))
     per_month = float(pricing.get("perMonth", 0))
@@ -63,11 +62,10 @@ def lambda_handler(event, context):
         body = json.loads(event["body"])
         customer_id = body.get("customerId")
         unit_id = body.get("unitId")
-        type_id = body.get("typeId")
         start_date = body.get("startDate")
         end_date = body.get("endDate")
 
-        if not (customer_id and unit_id and type_id and start_date and end_date):
+        if not (customer_id and unit_id and start_date and end_date):
             return {
                 "statusCode": 400,
                 "body": json.dumps({"error": "Missing required fields"}),
@@ -85,7 +83,7 @@ def lambda_handler(event, context):
             }
 
         # Retrieve pricing and unit status
-        pricing, status = get_pricing_for_unit(unit_id, type_id)
+        pricing, status = get_pricing_for_unit(unit_id)
         if not pricing or status != "Available":
             return {
                 "statusCode": 400,
@@ -102,12 +100,12 @@ def lambda_handler(event, context):
             "bookingId": booking_id,
             "customerId": customer_id,
             "unitId": unit_id,
-            "typeId": type_id,
             "startDate": start_date.strftime("%Y-%m-%d"),
             "endDate": end_date.strftime("%Y-%m-%d"),
             "totalPrice": str(total_price),
             "status": "Confirmed",
             "noticePeriod": notice_period,
+            "paymentStatus": "Awaiting Payment",
             "cancellationRequested": False,
         }
 
@@ -115,7 +113,7 @@ def lambda_handler(event, context):
 
         # Update unit status
         units_table.update_item(
-            Key={"unitId": unit_id, "typeId": type_id},
+            Key={"unitId": unit_id},
             UpdateExpression="SET #status = :status",
             ExpressionAttributeNames={"#status": "status"},
             ExpressionAttributeValues={":status": "Reserved"},

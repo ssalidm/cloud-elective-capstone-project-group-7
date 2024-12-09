@@ -1,7 +1,7 @@
 import json
 import boto3
 import os
-from boto3.dynamodb.conditions import Key, Attr
+from boto3.dynamodb.conditions import Attr
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -9,36 +9,39 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 def lambda_handler(event, context):
     """
-    Retrieve all units for a specific storage type, with optional filtering.
+    Retrieve units filtered by location, status, storage type, and size.
     """
     try:
-        # Extract typeId from path parameters
-        type_id = event["pathParameters"]["typeId"]
-
-        # Extract query parameters (optional filters)
+        # Extract query parameters
         query_params = event.get("queryStringParameters") or {}
         location = query_params.get("location")
         status = query_params.get("status")
+        storage_type = query_params.get("type")
+        size = query_params.get("size")
 
-        # Perform a scan and filter by typeId
-        response = table.scan(
-            FilterExpression="typeId = :typeId",
-            ExpressionAttributeValues={":typeId": type_id},
-        )
-
-        # Apply filtering if query parameters are provided
+        # Perform a scan to get all items in the table
+        response = table.scan()
         units = response.get("Items", [])
-        
+
+        # Apply filters dynamically based on provided parameters
         if location:
             units = [unit for unit in units if unit.get("location") == location]
         if status:
             units = [unit for unit in units if unit.get("status") == status]
+        if storage_type:
+            units = [unit for unit in units if unit.get("typeId") == storage_type]
+        if size:
+            units = [unit for unit in units if unit.get("size") == size]
 
-        # Return the filtered or unfiltered units
+        # Return filtered units
         return {
             "statusCode": 200,
             "body": json.dumps(units),
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }
 
     except Exception as e:
@@ -46,5 +49,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Internal server error"}),
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            },
         }

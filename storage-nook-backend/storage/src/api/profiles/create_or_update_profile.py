@@ -11,24 +11,28 @@ def lambda_handler(event, context):
     try:
         # Get user details from the token
         claims = event["requestContext"]["authorizer"]["claims"]
-        user_id = claims["sub"]  # Cognito user ID
-        email = claims["email"]  # User's email address
+        user_id = claims["sub"]
+        email = claims["email"]
 
         # Parse the request body
         body = json.loads(event["body"])
         phone = body.get("phone")
-        first_name = body.get("first_name")
-        last_name = body.get("last_name")
+        first_name = body.get("firstName")
+        last_name = body.get("lastName")
         address = body.get("address")
+        payment_methods = body.get("paymentMethods", [])
 
         # Build the profile object
         profile = {
             "userId": user_id,
-            "email": email,
-            "first_name": first_name,
-            "last_name": last_name,
-            "phone": phone,
-            "address": address,
+            "userDetails": {
+                "email": email,
+                "firstName": first_name,
+                "lastName": last_name,
+                "phone": phone,
+                "address": address,
+            },
+            "paymentMethods": payment_methods,
         }
 
         # Save to DynamoDB

@@ -1,42 +1,42 @@
 import json
 import boto3
 import os
+from uuid import uuid4
 
 dynamodb = boto3.resource("dynamodb")
-profiles_table = dynamodb.Table(os.environ["TABLE_NAME"])
-
+table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 def lambda_handler(event, context):
-    """
-    Manage payment methods for a user.
-    """
     try:
+        # Get user details from the token
+        claims = event["requestContext"]["authorizer"]["claims"]
+        user_id = claims["sub"]
+        
         body = json.loads(event["body"])
-        user_id = body.get("userId")
-        payment_method = body.get("paymentMethod")
+        # user_id = event["pathParameters"]["userId"]
+        payment_method = body.get("paymentMethod")       
 
-        if not (user_id and payment_method):
+        if not payment_method or "type" not in payment_method or "details" not in payment_method:
             return {
                 "statusCode": 400,
-                "body": json.dumps({"error": "Missing required fields"}),
+                "body": json.dumps({"error": "Invalid payment method data"}),
             }
 
-        # Retrieve existing methods
-        response = profiles_table.get_item(Key={"userId": user_id})
-        profile = response.get("Item", {})
-        payment_methods = profile.get("paymentMethods", [])
+        payment_method["methodId"] = str(uuid4())
 
-        # Add new method
-        payment_methods.append(payment_method)
-        profiles_table.update_item(
+        response = table.update_item(
             Key={"userId": user_id},
-            UpdateExpression="SET paymentMethods = :methods",
-            ExpressionAttributeValues={":methods": payment_methods},
+            UpdateExpression="SET paymentMethods = list_append(if_not_exists(paymentMethods, :empty_list), :new_method)",
+            ExpressionAttributeValues={
+                ":new_method": [payment_method],
+                ":empty_list": [],
+            },
+            ReturnValues="UPDATED_NEW",
         )
 
         return {
-            "statusCode": 200,
-            "body": json.dumps({"message": "Payment method added"}),
+            "statusCode": 201,
+            "body": json.dumps({"message": "Payment method added successfully", "paymentMethods": response["Attributes"].get("paymentMethods", [])}),
         }
 
     except Exception as e:

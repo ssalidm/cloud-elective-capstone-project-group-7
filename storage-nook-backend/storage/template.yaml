@@ -14,6 +14,10 @@ Resources:
     Properties:
       Name: StorageApi
       StageName: dev
+      Cors: 
+        AllowOrigin: "'*'"
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
       Auth:
         Authorizers:
           CognitoAuthorizer:
@@ -37,20 +41,20 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
-  StorageUnitsTable:
+  StorageUnitsTableV2:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: StorageUnitsTable
+      TableName: StorageUnitsTableV2
       AttributeDefinitions:
         - AttributeName: unitId
           AttributeType: S
-        - AttributeName: typeId
-          AttributeType: S
+        # - AttributeName: typeId
+        #   AttributeType: S
       KeySchema:
         - AttributeName: unitId
           KeyType: HASH
-        - AttributeName: typeId
-          KeyType: RANGE
+      #   - AttributeName: typeId
+      #     KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
 
   UserProfilesTable:
@@ -120,7 +124,7 @@ Resources:
                   - dynamodb:BatchWriteItem
                 Resource:
                   - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/StorageTypesTable
-                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/StorageUnitsTable
+                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/StorageUnitsTableV2
                   - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/UserProfilesTable
                   - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable
                   - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/BookingsTable/index/CustomerIndex
@@ -169,7 +173,7 @@ Resources:
           - Arn
       Environment:
         Variables:
-          TABLE_NAME: StorageUnitsTable
+          TABLE_NAME: StorageUnitsTableV2
           STORAGE_TYPES_TABLE: StorageTypesTable
       Events:
         CreateStorageUnit:
@@ -178,35 +182,7 @@ Resources:
             RestApiId:
               Ref: StorageApi
             Path: /storage-types/{typeId}/units
-            Method: post
-            Auth:
-              Authorizer: CognitoAuthorizer
-
-  #########################################
-  # Get All Storage Units Function
-  #########################################
-  GetAllUnitsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: get-all-units-function
-      CodeUri: src/api/storage_units/
-      Handler: get_all_units.lambda_handler
-      Runtime: python3.9
-      Role:
-        Fn::GetAtt:
-          - StorageNookFunctionRole
-          - Arn
-      Environment:
-        Variables:
-          TABLE_NAME: StorageUnitsTable
-      Events:
-        GetAllUnits:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: StorageApi
-            Path: /units
-            Method: get
+            Method: POST
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -226,17 +202,15 @@ Resources:
           - Arn
       Environment:
         Variables:
-          TABLE_NAME: StorageUnitsTable
+          TABLE_NAME: StorageUnitsTableV2
       Events:
         GetStorageUnits:
           Type: Api
           Properties:
             RestApiId:
               Ref: StorageApi
-            Path: /storage-types/{typeId}/units
-            Method: get
-            Auth:
-              Authorizer: CognitoAuthorizer
+            Path: /units
+            Method: GET
 
   #########################################
   # Update Unit Function
@@ -254,7 +228,7 @@ Resources:
           - Arn
       Environment:
         Variables:
-          TABLE_NAME: StorageUnitsTable
+          TABLE_NAME: StorageUnitsTableV2
       Events:
         UpdateUnit:
           Type: Api
@@ -262,7 +236,7 @@ Resources:
             RestApiId:
               Ref: StorageApi
             Path: /units/{unitId}
-            Method: put
+            Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -282,7 +256,7 @@ Resources:
           - Arn
       Environment:
         Variables:
-          TABLE_NAME: StorageUnitsTable
+          TABLE_NAME: StorageUnitsTableV2
       Events:
         DeleteUnit:
           Type: Api
@@ -290,7 +264,7 @@ Resources:
             RestApiId:
               Ref: StorageApi
             Path: /units/{unitId}
-            Method: delete
+            Method: DELETE
             Auth:
               Authorizer: CognitoAuthorizer
     Metadata:
@@ -319,8 +293,8 @@ Resources:
           Properties:
             RestApiId:
               Ref: StorageApi
-            Path: /profiles
-            Method: post
+            Path: user/profile
+            Method: POST
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -348,8 +322,8 @@ Resources:
           Properties:
             RestApiId: 
               Ref: StorageApi
-            Path: /profiles
-            Method: get
+            Path: user/profile
+            Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -369,7 +343,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: BookingsTable
-          UNITS_TABLE: StorageUnitsTable
+          UNITS_TABLE: StorageUnitsTableV2
       Events:
         CreateBooking:
           Type: Api
@@ -377,7 +351,7 @@ Resources:
             RestApiId: 
               Ref: StorageApi
             Path: /bookings
-            Method: post
+            Method: POST
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -397,7 +371,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: BookingsTable
-          UNITS_TABLE: StorageUnitsTable
+          UNITS_TABLE: StorageUnitsTableV2
       Events:
         GetCustomerBookings:
           Type: Api
@@ -405,7 +379,7 @@ Resources:
             RestApiId: 
               Ref: StorageApi
             Path: /customers/{customerId}/bookings
-            Method: get
+            Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -425,7 +399,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: BookingsTable
-          UNITS_TABLE: StorageUnitsTable
+          UNITS_TABLE: StorageUnitsTableV2
       Events:
         UpdateBooking:
           Type: Api
@@ -433,7 +407,7 @@ Resources:
             RestApiId:
               Ref: StorageApi
             Path: /bookings/{bookingId}
-            Method: put
+            Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -453,7 +427,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: BookingsTable
-          UNITS_TABLE: StorageUnitsTable
+          UNITS_TABLE: StorageUnitsTableV2
       Events:
         CancelBooking:
           Type: Api
@@ -461,19 +435,19 @@ Resources:
             RestApiId:
               Ref: StorageApi
             Path: /bookings/{bookingId}/cancel
-            Method: put
+            Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
 
   #########################################
-  # Payment Function
+  # Process Payment Function
   #########################################
-  PaymentFunction:
+  ProcessPaymentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: payment-function
+      FunctionName: process-payment-function
       CodeUri: src/api/bookings/
-      Handler: payment.lambda_handler
+      Handler: process_payment.lambda_handler
       Runtime: python3.9
       Role:
         Fn::GetAtt:
@@ -481,7 +455,8 @@ Resources:
           - Arn
       Environment:
         Variables:
-          TABLE_NAME: BookingsTable
+          BOOKINGS_TABLE: BookingsTable
+          PROFILES_TABLE: UserProfilesTable
       Events:
         SimulatePayment:
           Type: Api
@@ -489,7 +464,7 @@ Resources:
             RestApiId:
               Ref: StorageApi
             Path: /bookings/{bookingId}/pay
-            Method: post
+            Method: POST
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -516,8 +491,8 @@ Resources:
           Properties:
             RestApiId:
               Ref: StorageApi
-            Path: /users/{userId}/payment-methods
-            Method: post
+            Path: /users/payment-methods
+            Method: POST
             Auth:
               Authorizer: CognitoAuthorizer
 
@@ -545,12 +520,12 @@ Outputs:
       Ref: StorageTypesTable
     Export:
       Name: StorageTypesTableName
-  StorageUnitsTableName:
+  StorageUnitsTableV2Name:
     Description: Name of the DynamoDB table for storage units
     Value:
-      Ref: StorageUnitsTable
+      Ref: StorageUnitsTableV2
     Export:
-      Name: StorageUnitsTableName
+      Name: StorageUnitsTableV2Name
   StorageNookFunctionRoleArn:
     Description: ARN of the IAM role used by Lambda functions
     Value:
