@@ -465,6 +465,64 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
+  #########################################
+  # Payment Function
+  #########################################
+  PaymentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: payment-function
+      CodeUri: src/api/bookings/
+      Handler: payment.lambda_handler
+      Runtime: python3.9
+      Role:
+        Fn::GetAtt:
+          - StorageNookFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: BookingsTable
+      Events:
+        SimulatePayment:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: StorageApi
+            Path: /bookings/{bookingId}/pay
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  #########################################
+  # Manage Payment Method Function
+  #########################################
+  ManagePaymentMethodsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: manage-payment-methods-function
+      CodeUri: src/api/profiles/
+      Handler: manage_payment_methods.lambda_handler
+      Runtime: python3.9
+      Role:
+        Fn::GetAtt:
+          - StorageNookFunctionRole
+          - Arn
+      Environment:
+        Variables:
+          TABLE_NAME: UserProfilesTable
+      Events:
+        ManagePaymentMethods:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: StorageApi
+            Path: /users/{userId}/payment-methods
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+
+
 #########################################
 # Outputs
 #########################################
