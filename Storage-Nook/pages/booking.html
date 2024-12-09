@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Storage Unit</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .navbar {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            margin: 0;
+        }
+        .navbar nav {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        .tiles-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #unitDetails {
+            margin-bottom: 20px;
+            background: #e8f5e9;
+            padding: 10px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+        }
+        .login-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Storage App</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact Us</a>
+        </nav>
+    </div>
+    <div class="tiles-container">
+        <h2>Book Storage Unit</h2>
+        <form id="bookingForm">
+            <label for="unitDetails">Unit Details</label>
+            <p id="unitDetails">Size: Large, Location: Downtown, Price: $100</p>
+            <button type="submit" class="login-btn">Confirm Booking</button>
+        </form>
+    </div>
+</body>
+</html>
