@@ -241,3 +241,9 @@ button:hover {
   font-size: 14px;
   margin-top: 10px;
 }
+
+.admin-heading {
+  color: black;
+  text-align: center;
+  margin-top: 20px; /* Add some margin to the top if needed */
+}
