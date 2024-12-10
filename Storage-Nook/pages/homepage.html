@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Self-Storage App</title>
+    <title>Storage Nook - Self-Storage Solution</title>
     <style>
         /* General Styles */
         * {
@@ -173,6 +173,69 @@
         footer p {
             margin: 0;
         }
+
+        /* Booking Modal Styles */
+        .booking-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .booking-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        .booking-modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .booking-modal-content select, 
+        .booking-modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .booking-modal-content button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .booking-modal-content button:hover {
+            background-color: #45a049;
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: black;
+        }
     </style>
 </head>
 <body>
@@ -182,6 +245,9 @@
             <ul>
                 <li><a href="#view-units">View Storage Units</a></li>
                 <li><a href="#manage-bookings">Manage Bookings</a></li>
+                <li><a href="#" onclick="openBookingModal()">Make a Booking</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html">Sign Up</a></li>
             </ul>
         </nav>
     </header>
@@ -201,14 +267,83 @@
                 <button>Search</button>
             </div>
             <div class="buttons">
-                <a href="#signup">Sign Up</a>
-                <a href="#login">Login</a>
+                <a href="#" onclick="openBookingModal()">Make a Booking</a>
             </div>
         </section>
     </main>
 
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="booking-modal">
+        <div class="booking-modal-content">
+            <span class="close-modal" onclick="closeBookingModal()">&times;</span>
+            <h2>Book Your Storage Unit</h2>
+            <select id="unit-selection">
+                <option value="unit101">Unit 101 - $100/month</option>
+                <option value="unit102">Unit 102 - $150/month</option>
+                <option value="unit103">Unit 103 - $200/month</option>
+            </select>
+
+            <select id="storage-size">
+                <option value="small">Small - 5x5</option>
+                <option value="medium">Medium - 10x10</option>
+                <option value="large">Large - 15x15</option>
+            </select>
+
+            <select id="location-selection">
+                <option value="location1">Location 1</option>
+                <option value="location2">Location 2</option>
+                <option value="location3">Location 3</option>
+            </select>
+
+            <select id="recurring-payment">
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="annually">Annually</option>
+            </select>
+
+            <select id="payment-method">
+                <option value="credit-card">Credit Card</option>
+                <option value="paypal">PayPal</option>
+                <option value="bank-transfer">Bank Transfer</option>
+            </select>
+
+            <input type="email" id="customer-email" placeholder="Enter your email" required>
+
+            <button onclick="confirmBooking()">Confirm Booking</button>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2024 The Storage Nook. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        function openBookingModal() {
+            document.getElementById('bookingModal').style.display = 'block';
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+        }
+
+        function confirmBooking() {
+            const unitSelection = document.getElementById("unit-selection").value;
+            const storageSize = document.getElementById("storage-size").value;
+            const locationSelection = document.getElementById("location-selection").value;
+            const recurringPayment = document.getElementById("recurring-payment").value;
+            const paymentMethod = document.getElementById("payment-method").value;
+            const customerEmail = document.getElementById("customer-email").value;
+
+            // Validate the form
+            if (!customerEmail) {
+                alert("Please enter a valid email.");
+                return;
+            }
+
+            // You can submit this data to a server or handle as needed
+            alert(`Booking confirmed for ${unitSelection} at ${storageSize} size, located at ${locationSelection}. Recurring payment: ${recurringPayment}, Payment Method: ${paymentMethod}`);
+            closeBookingModal();
+        }
+    </script>
 </body>
 </html>
