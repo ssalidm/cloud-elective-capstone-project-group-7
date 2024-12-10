@@ -7,20 +7,36 @@ document.getElementById('add-unit-btn').addEventListener('click', function() {
 // Function to handle adding a new unit to the table and API
 document.getElementById('unit-form').addEventListener('submit', function(event) {
   event.preventDefault();
+  const address = document.getElementById('address').value;
+  const size = document.getElementById('size').value ;
+  const status= document.getElementById('status').value ;
+  const location = document.getElementById('location').value ;
+  const ppd = document.getElementById('price-per-day').value ;
+  const ppw = document.getElementById('price-per-week').value ;
+  const ppm= document.getElementById('price-per-month').value ;
+  const ppy = document.getElementById('price-per-year').value ;
 
-  const unitId = document.getElementById('unit-id').value;
-  const status = document.getElementById('status').value;
-  const price = document.getElementById('price').value;
+
 
   // Prepare data for API
   const unitData = {
-      unitId: unitId,
+      address: address,
       status: status,
-      price: price
-  };
+      location : location,
+      size : size,
+      pricing :{
+        perYear: ppy,
+        perMonth: ppm,
+        perWeek: ppw,
+        perDay: ppd 
+
+      }
+    
+      
+  }
 
   // Make API call to add a new unit
-  fetch('https://4gt9bjtqq1.execute-api.eu-west-1.amazonaws.com/dev/units', {
+  fetch('https://4gt9bjtqq1.execute-api.eu-west-1.amazonaws.com/dev/storage-type/locker/units', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
@@ -36,7 +52,7 @@ document.getElementById('unit-form').addEventListener('submit', function(event) 
           // Create a new row for the unit
           const newRow = document.createElement('tr');
           newRow.innerHTML = `
-              <td>${data.unitId}</td>
+              <td> ${data.unitId}</td>
               <td>${data.status}</td>
               <td>${data.price}</td>
               <td>
@@ -49,9 +65,16 @@ document.getElementById('unit-form').addEventListener('submit', function(event) 
           document.getElementById('unit-list').appendChild(newRow);
 
           // Clear the form and hide it
-          document.getElementById('unit-id').value = '';
+          document.getElementById('address').value = '';
+          document.getElementById('size').value = '';
           document.getElementById('status').value = '';
-          document.getElementById('price').value = '';
+          document.getElementById('location').value = '';
+          document.getElementById('price-per-day').value = '';
+          document.getElementById('price-per-week').value = '';
+          document.getElementById('price-per-month').value = '';
+          document.getElementById('price-per-year').value = '';
+
+
           document.getElementById('add-unit-form').style.display = 'none';
       } else {
           alert("Failed to add unit. Please try again.");

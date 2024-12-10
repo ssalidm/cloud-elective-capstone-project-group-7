@@ -1,27 +1,48 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Check if the access token is in the URL (from Cognito redirect)
+  const accessToken = parseAccessToken();
+  if (accessToken) {
+    // Store the access token in localStorage for later use
+    localStorage.setItem('accessToken', accessToken);
+    console.log('Access token stored successfully:', accessToken);
+  }
+
   fetchDashboardData();
-  
+
   const refreshButton = document.getElementById('refresh-dashboard');
   if (refreshButton) {
     refreshButton.addEventListener('click', fetchDashboardData);
   }
 });
 
+function parseAccessToken() {
+  const hash = window.location.hash;
+  if (!hash) {
+    return null;
+  }
+  const params = new URLSearchParams(hash.substring(1));
+  return params.get('access_token');
+}
+
 async function fetchDashboardData() {
   try {
-    // Mock the ID Token temporarily until backend adds the authorized list of admin users
-    const idToken = "mocked-valid-id-token";  // mock tokern
-    
+    // Get the actual access token from localStorage
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      alert("User is not authenticated.");
+      return;
+    }
+
     // fetch data from the actual API endpoint
-    const response = await fetch("https://4gt9bjtqq1.execute-api.eu-west-1.amazonaws.com/dev/units", {
+    const response = await fetch("https://4gt9bjtqq1.execute-api.eu-west-1.amazonaws.com/dev/admin/analytics", {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${idToken}`,  // Include the mock token in the Authorization header
+        'Authorization': `Bearer ${accessToken}`,  // Use the access token in the Authorization header
         'Content-Type': 'application/json'
       }
     });
 
-    // If API returns an error, fall back to mock data
+    // If API returns an error, handle it
     if (response.status === 401) {
       alert("You are not authorized to view this data.");
       return;  // Stop the function if not authorized
@@ -37,13 +58,13 @@ async function fetchDashboardData() {
     const bookings = data.length; 
     const occupancy = calculateOccupancy(data);
 
-    // Update the dashboard tiles
+    // Update the dashboard tiles with real data
     updateDashboard({ revenue, bookings, occupancy });
 
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
 
-    // Use mock data in case of any error
+    // Use mock data in case of an error
     alert("An error occurred while fetching the data, using mock data.");
 
     // Mock data for testing purposes

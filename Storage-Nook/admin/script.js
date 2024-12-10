@@ -1,7 +1,8 @@
 // Cognito URLs
 const cognitoDomain = "https://storagenookapp.auth.eu-west-1.amazoncognito.com/";
 const clientId = "46h9jukegvt1lk4bp4v5p4p029"; 
-const redirectUri = "https://storage-nook-admin.s3.eu-west-1.amazonaws.com/admin/dashboard.html"; // Replace with your actual callback URL
+// const redirectUri = "https://storage-nook-admin.s3.eu-west-1.amazonaws.com/admin/dashboard.html"; // Replace with your actual callback URL
+const redirectUri = "http://localhost:8000"; // Replace with your actual callback URL
 
 const responseType = "token"; 
 const scope = "openid email profile"; 
