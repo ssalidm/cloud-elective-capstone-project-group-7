@@ -245,7 +245,6 @@
             <ul>
                 <li><a href="#view-units">View Storage Units</a></li>
                 <li><a href="#manage-bookings">Manage Bookings</a></li>
-                <li><a href="#" onclick="openBookingModal()">Make a Booking</a></li>
                 <li><a href="login.html">Login</a></li>
                 <li><a href="signup.html">Sign Up</a></li>
             </ul>
@@ -340,9 +339,45 @@
                 return;
             }
 
-            // You can submit this data to a server or handle as needed
-            alert(`Booking confirmed for ${unitSelection} at ${storageSize} size, located at ${locationSelection}. Recurring payment: ${recurringPayment}, Payment Method: ${paymentMethod}`);
-            closeBookingModal();
+            // Prepare the data to be sent to the backend
+            const bookingDetails = {
+                unit: unitSelection,
+                storageSize: storageSize,
+                location: locationSelection,
+                recurringPeriod: recurringPayment,
+                paymentMethod: paymentMethod,
+                email: customerEmail,
+            };
+
+            // Send data to the backend to generate and send the invoice
+            fetch('/generate-invoice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingDetails),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Invoice has been sent to your email.');
+                    closeBookingModal();
+                } else {
+                    alert('There was an issue processing your payment.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing the request. Please try again later.');
+            });
+        }
+
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('bookingModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
         }
     </script>
 </body>
