@@ -5,413 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Bookings - Storage Nook</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f7f7f7;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            background: #4CAF50;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        header .logo {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 25px;
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: white;
-            font-weight: bold;
-            padding: 8px 15px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            background-color: #45a049;
-        }
-
-        .dashboard {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-top: 20px;
-        }
-
-        .booking-list {
-            margin-top: 20px;
-        }
-
-        .booking-card {
-            background: #f4f4f4;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .booking-details {
-            flex-grow: 1;
-        }
-
-        .booking-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-modify {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .btn-cancel {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .btn-modify:hover {
-            background-color: #45a049;
-        }
-
-        .btn-cancel:hover {
-            background-color: #d32f2f;
-        }
-
-        .payment-section {
-            margin-top: 30px;
-            background: #f4f4f4;
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        .payment-method {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 8px;
-        }
-
-        .close-modal {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close-modal:hover {
-            color: black;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f7f7f7; color: #333; line-height: 1.6; }
+        .container { width: 90%; max-width: 1200px; margin: auto; padding: 20px; }
+        header { background: #4CAF50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .dashboard, .payment-section { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 20px; margin-top: 20px; }
+        .booking-card, .payment-method { background: #f4f4f4; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-modify { background-color: #4CAF50; color: white; }
+        .btn-cancel { background-color: #f44336; color: white; }
+        .btn-modify:hover { background-color: #45a049; }
+        .btn-cancel:hover { background-color: #d32f2f; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); }
+        .modal-content { background: #fff; margin: 15% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 500px; }
+        .close-modal { color: #aaa; float: right; font-size: 28px; cursor: pointer; }
+        .close-modal:hover { color: black; }
     </style>
 </head>
 <body>
     <header>
         <div class="logo">Storage Nook</div>
         <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="#" class="active">Manage Bookings</a></li>
-                <li><a href="login.html">Logout</a></li>
+            <ul style="list-style: none; display: flex; gap: 25px;">
             </ul>
         </nav>
     </header>
-
     <div class="container">
         <div class="dashboard">
             <h1>My Bookings</h1>
-            <div id="bookingList" class="booking-list">
-                <!-- Bookings will be dynamically populated here -->
-            </div>
+            <div id="bookingList"></div>
         </div>
-
         <div class="payment-section">
             <h2>Payment Management</h2>
-            <div id="paymentMethods">
-                <!-- Payment methods will be dynamically populated here -->
-            </div>
+            <div id="paymentMethods"></div>
         </div>
     </div>
-
-    <!-- Modify Booking Modal -->
     <div id="modifyBookingModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModifyModal()">&times;</span>
             <h2>Modify Booking</h2>
             <form id="modifyBookingForm">
-                <select id="modifyUnitSelection">
-                    <option value="unit101">Unit 101 - $100/month</option>
-                    <option value="unit102">Unit 102 - $150/month</option>
-                    <option value="unit103">Unit 103 - $200/month</option>
-                </select>
-
-                <select id="modifyStorageSize">
-                    <option value="small">Small - 5x5</option>
-                    <option value="medium">Medium - 10x10</option>
-                    <option value="large">Large - 15x15</option>
-                </select>
-
-                <select id="modifyLocationSelection">
-                    <option value="location1">Location 1</option>
-                    <option value="location2">Location 2</option>
-                    <option value="location3">Location 3</option>
-                </select>
-
-                <select id="modifyRecurringPayment">
-                    <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="annually">Annually</option>
-                </select>
-
+                <select id="modifyUnitSelection"></select>
+                <select id="modifyStorageSize"></select>
+                <select id="modifyLocationSelection"></select>
+                <select id="modifyRecurringPayment"></select>
                 <button type="button" onclick="saveBookingModifications()">Save Changes</button>
             </form>
         </div>
     </div>
-
-    <!-- Payment Method Modal -->
     <div id="paymentMethodModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closePaymentModal()">&times;</span>
             <h2>Add Payment Method</h2>
             <form id="paymentMethodForm">
-                <select id="paymentType">
-                    <option value="credit-card">Credit Card</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="bank-transfer">Bank Transfer</option>
-                </select>
-                <input type="text" id="paymentDetails" placeholder="Card Number / PayPal Email / Bank Details">
+                <select id="paymentType"></select>
+                <input type="text" id="paymentDetails" placeholder="Details">
                 <button type="button" onclick="savePaymentMethod()">Add Payment Method</button>
             </form>
         </div>
     </div>
-
     <script>
-        // Simulated user bookings data (would typically come from backend)
-        const userBookings = [
-            {
-                id: 'booking1',
-                unit: 'Unit 101',
-                size: 'Small - 5x5',
-                location: 'Location 1',
-                monthlyRate: '$100',
-                startDate: '2024-01-15',
-                status: 'Active'
-            },
-            {
-                id: 'booking2',
-                unit: 'Unit 102',
-                size: 'Medium - 10x10',
-                location: 'Location 2',
-                monthlyRate: '$150',
-                startDate: '2024-02-01',
-                status: 'Active'
-            }
-        ];
+        const bookings = [{ id: 'b1', unit: 'Unit 101', size: 'Small', location: 'Loc 1', rate: '$100', start: '2024-01-15', status: 'Active' }];
+        const payments = [{ id: 'p1', type: 'Card', last4: '1234', default: true }];
+        const bookingList = document.getElementById('bookingList');
+        const paymentMethods = document.getElementById('paymentMethods');
 
-        // Simulated payment methods
-        const paymentMethods = [
-            {
-                id: 'payment1',
-                type: 'Credit Card',
-                lastFourDigits: '4321',
-                isDefault: true
-            }
-        ];
-
-        // Render bookings
         function renderBookings() {
-            const bookingList = document.getElementById('bookingList');
-            bookingList.innerHTML = userBookings.map(booking => `
+            bookingList.innerHTML = bookings.map(b => `
                 <div class="booking-card">
-                    <div class="booking-details">
-                        <h3>${booking.unit}</h3>
-                        <p>Size: ${booking.size}</p>
-                        <p>Location: ${booking.location}</p>
-                        <p>Monthly Rate: ${booking.monthlyRate}</p>
-                        <p>Start Date: ${booking.startDate}</p>
-                        <p>Status: ${booking.status}</p>
+                    <div>
+                        <h3>${b.unit}</h3>
+                        <p>${b.size} - ${b.location} - ${b.rate} - ${b.start} - ${b.status}</p>
                     </div>
-                    <div class="booking-actions">
-                        <button class="btn btn-modify" onclick="openModifyModal('${booking.id}')">Modify</button>
-                        <button class="btn btn-cancel" onclick="cancelBooking('${booking.id}')">Cancel</button>
+                    <div>
+                        <button class="btn btn-modify" onclick="openModifyModal('${b.id}')">Modify</button>
+                        <button class="btn btn-cancel" onclick="cancelBooking('${b.id}')">Cancel</button>
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
-        // Render payment methods
-        function renderPaymentMethods() {
-            const paymentMethodsContainer = document.getElementById('paymentMethods');
-            paymentMethodsContainer.innerHTML = paymentMethods.map(method => `
+        function renderPayments() {
+            paymentMethods.innerHTML = payments.map(p => `
                 <div class="payment-method">
-                    <div>
-                        <h3>${method.type}</h3>
-                        <p>**** **** **** ${method.lastFourDigits}</p>
-                        ${method.isDefault ? '<span>Default</span>' : ''}
-                    </div>
-                    <div>
-                        <button class="btn btn-modify">Edit</button>
-                        <button class="btn btn-cancel">Remove</button>
-                    </div>
-                </div>
-            `).join('');
-            
-            // Add a button to add new payment method
-            paymentMethodsContainer.innerHTML += `
-                <button class="btn btn-modify" onclick="openPaymentModal()">Add Payment Method</button>
-            `;
+                    <div>${p.type} - ****${p.last4} ${p.default ? '(Default)' : ''}</div>
+                    <button class="btn btn-modify">Edit</button>
+                    <button class="btn btn-cancel">Remove</button>
+                </div>`).join('') + `<button class="btn btn-modify" onclick="openPaymentModal()">Add Payment</button>`;
         }
 
-        // Modify Booking Modal Functions
-        function openModifyModal(bookingId) {
-            const modal = document.getElementById('modifyBookingModal');
-            modal.style.display = 'block';
-            
-            // Populate modal with current booking details
-            const booking = userBookings.find(b => b.id === bookingId);
-            if (booking) {
-                document.getElementById('modifyUnitSelection').value = booking.unit.replace(' ', '').toLowerCase();
-                document.getElementById('modifyStorageSize').value = booking.size.split(' - ')[0].toLowerCase();
-                document.getElementById('modifyLocationSelection').value = booking.location.replace(' ', '').toLowerCase();
-            }
-        }
-
-        function closeModifyModal() {
-            document.getElementById('modifyBookingModal').style.display = 'none';
-        }
-
-        function saveBookingModifications() {
-            // In a real application, this would send data to backend
-            alert('Booking modifications saved!');
-            closeModifyModal();
-        }
-
-        // Cancel Booking
-        function cancelBooking(bookingId) {
-            const confirmCancel = confirm('Are you sure you want to cancel this booking?');
-            if (confirmCancel) {
-                // In a real application, this would send a request to the backend
-                const index = userBookings.findIndex(b => b.id === bookingId);
-                if (index !== -1) {
-                    userBookings[index].status = 'Cancelled';
-                    renderBookings();
-                    alert('Booking has been cancelled.');
-                }
-            }
-        }
-
-        // Payment Method Modal Functions
-        function openPaymentModal() {
-            document.getElementById('paymentMethodModal').style.display = 'block';
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentMethodModal').style.display = 'none';
-        }
-
-        function savePaymentMethod() {
-            const paymentType = document.getElementById('paymentType').value;
-            const paymentDetails = document.getElementById('paymentDetails').value;
-
-            if (paymentDetails) {
-                // In a real application, this would send data to backend
-                paymentMethods.push({
-                    id: `payment${paymentMethods.length + 1}`,
-                    type: paymentType,
-                    lastFourDigits: paymentDetails.slice(-4),
-                    isDefault: false
-                });
-
-                renderPaymentMethods();
-                closePaymentModal();
-                alert('Payment method added successfully!');
-            } else {
-                alert('Please enter payment details.');
-            }
-        }
-
-        // Initialize the page
-        function initPage() {
-            renderBookings();
-            renderPaymentMethods();
-        }
-
-        // Close modals when clicking outside
-        window.onclick = function(event) {
-            const modifyModal = document.getElementById('modifyBookingModal');
-            const paymentModal = document.getElementById('paymentMethodModal');
-            
-            if (event.target == modifyModal) {
-                modifyModal.style.display = 'none';
-            }
-            if (event.target == paymentModal) {
-                paymentModal.style.display = 'none';
-            }
-        }
-
-        // Call initialization when page loads
-        window.onload = initPage;
+        function openModifyModal(id) { document.getElementById('modifyBookingModal').style.display = 'block'; }
+        function closeModifyModal() { document.getElementById('modifyBookingModal').style.display = 'none'; }
+        function saveBookingModifications() { alert('Saved'); closeModifyModal(); }
+        function cancelBooking(id) { alert('Cancelled'); }
+        function openPaymentModal() { document.getElementById('paymentMethodModal').style.display = 'block'; }
+        function closePaymentModal() { document.getElementById('paymentMethodModal').style.display = 'none'; }
+        function savePaymentMethod() { alert('Added'); closePaymentModal(); }
+        window.onload = () => { renderBookings(); renderPayments(); };
     </script>
 </body>
 </html>
