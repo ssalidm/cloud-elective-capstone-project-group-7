@@ -67,8 +67,9 @@ def lambda_handler(event, context):
                 "statusCode": 403,
                 "body": json.dumps({"error": "Forbidden"}),
                 "headers": {
+                    "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
                     "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 },
             }
@@ -82,9 +83,10 @@ def lambda_handler(event, context):
                 "statusCode": 400,
                 "body": json.dumps({"error": f"Storage type {type_id} does not exist"}),
                 "headers": {
+                    "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "POST",
-                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
                 },
             }
 
@@ -97,9 +99,10 @@ def lambda_handler(event, context):
                 "statusCode": 400,
                 "body": json.dumps({"error": "No units provided"}),
                 "headers": {
+                    "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "POST",
-                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
                 },
             }
 
@@ -126,9 +129,10 @@ def lambda_handler(event, context):
             "statusCode": 201,
             "body": json.dumps({"message": "Units created successfully"}),
             "headers": {
+                "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
             },
         }
 
@@ -138,8 +142,9 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "body": json.dumps({"error": "Internal server error"}),
             "headers": {
+                "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
             },
         }
