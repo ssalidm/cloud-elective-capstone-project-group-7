@@ -3,98 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Storage Unit</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Storage Booking</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+            background: #f4f4f4;
         }
-        .navbar {
-            background-color: #4CAF50;
+
+        header {
+            background-color: #333;
             color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar h1 {
-            margin: 0;
-        }
-        .navbar nav {
-            display: flex;
-            gap: 20px;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .navbar a:hover {
-            text-decoration: underline;
-        }
-        .tiles-container {
-            max-width: 800px;
-            margin: 50px auto;
             padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        h2 {
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-        form {
+
+        #available-units {
+            padding: 20px;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .unit-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 250px;
+            text-align: center;
+        }
+
+        .unit-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .unit-card h3 {
+            margin: 15px 0;
+            color: #333;
+        }
+
+        .unit-card p {
+            color: #666;
+        }
+
+        .unit-card button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .unit-card button:hover {
+            background-color: #45a049;
+        }
+
+        #unit-details-modal {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.6);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
             align-items: center;
         }
-        label {
-            font-weight: bold;
-            margin-bottom: 10px;
+
+        #unit-details-modal div {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 80%;
         }
-        #unitDetails {
-            margin-bottom: 20px;
-            background: #e8f5e9;
+
+        #booking-confirmation {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px;
+        }
+
+        #payment-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #payment-form select,
+        #payment-form input {
+            margin: 10px 0;
             padding: 10px;
-            border: 1px solid #4CAF50;
-            border-radius: 4px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
-        .login-btn {
-            background: #4CAF50;
+
+        footer {
+            background-color: #333;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-        .login-btn:hover {
-            background: #45a049;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <h1>Storage Nook</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="dashboard.html">Dashboard</a>
-            <a href="contact.html">Contact Us</a>
-        </nav>
+    <header>
+        <h1>Book Your Storage Unit</h1>
+    </header>
+
+    <section id="available-units">
+        <h2>Available Storage Units</h2>
+        <div class="unit-card">
+            <img src="unit_image.jpg" alt="Storage Unit">
+            <h3>Unit 101</h3>
+            <p>Size: 10x10 feet</p>
+            <p>Location: Downtown</p>
+            <p>Price: $100/month</p>
+            <button onclick="viewDetails('Unit 101', '10x10 feet', 'Downtown', '$100/month')">View Details</button>
+            <button onclick="bookUnit('Unit 101', '$100/month')">Book Unit</button>
+        </div>
+        <!-- Repeat for other units -->
+    </section>
+
+    <div id="unit-details-modal">
+        <div>
+            <h2 id="unit-name"></h2>
+            <p id="unit-description"></p>
+            <p id="unit-price"></p>
+            <p>Location: <span id="unit-location"></span></p>
+            <button onclick="bookUnit()">Book Now</button>
+            <button onclick="closeDetails()">Close</button>
+        </div>
     </div>
-    <div class="tiles-container">
-        <h2>Book Storage Unit</h2>
-        <form id="bookingForm">
-            <label for="unitDetails">Unit Details</label>
-            <p id="unitDetails">Size: Large, Location: Downtown, Price: $100</p>
-            <button type="submit" class="login-btn">Confirm Booking</button>
+
+    <section id="booking-confirmation" style="display:none;">
+        <h2>Confirm Your Booking</h2>
+        <p>Storage Unit: <span id="booking-unit-name"></span></p>
+        <p>Price: <span id="booking-unit-price"></span></p>
+        <form id="payment-form">
+            <label for="payment-method">Select Payment Method</label>
+            <select id="payment-method" name="payment-method">
+                <option value="credit-card">Credit Card</option>
+                <option value="paypal">PayPal</option>
+            </select>
+
+            <div id="credit-card-info" style="display:none;">
+                <label for="card-number">Card Number</label>
+                <input type="text" id="card-number" placeholder="Enter your card number">
+            </div>
+            <div id="paypal-info" style="display:none;">
+                <label for="paypal-email">PayPal Email</label>
+                <input type="email" id="paypal-email" placeholder="Enter your PayPal email">
+            </div>
+            <button type="submit">Confirm and Pay</button>
         </form>
-    </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Storage Company. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function viewDetails(name, size, location, price) {
+            document.getElementById("unit-name").innerText = name;
+            document.getElementById("unit-description").innerText = `Size: ${size}`;
+            document.getElementById("unit-location").innerText = location;
+            document.getElementById("unit-price").innerText = price;
+            document.getElementById("unit-details-modal").style.display = "flex";
+        }
+
+        function closeDetails() {
+            document.getElementById("unit-details-modal").style.display = "none";
+        }
+
+        function bookUnit(name, price) {
+            document.getElementById("booking-unit-name").innerText = name;
+            document.getElementById("booking-unit-price").innerText = price;
+            document.getElementById("available-units").style.display = "none";
+            document.getElementById("booking-confirmation").style.display = "block";
+        }
+
+        document.getElementById("payment-method").addEventListener("change", function() {
+            var paymentMethod = this.value;
+            if (paymentMethod === "credit-card") {
+                document.getElementById("credit-card-info").style.display = "block";
+                document.getElementById("paypal-info").style.display = "none";
+            } else {
+                document.getElementById("credit-card-info").style.display = "none";
+                document.getElementById("paypal-info").style.display = "block";
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #booking-section {
+            margin: 30px;
+        }
+
+        .booking-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        .booking-card h3 {
+            text-align: center;
+        }
+
+        .booking-card label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        .booking-card select, .booking-card input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+
+        .booking-card button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .booking-card button:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Storage Unit Booking</h1>
+    </header>
+
+    <section id="booking-section">
+        <div class="booking-card">
+            <h3>Book Your Storage Unit</h3>
+            <label for="unit-selection">Select Storage Unit</label>
+            <select id="unit-selection">
+                <option value="unit101">Unit 101 - $100/month</option>
+                <option value="unit102">Unit 102 - $150/month</option>
+                <option value="unit103">Unit 103 - $200/month</option>
+            </select>
+
+            <label for="storage-size">Select Storage Size</label>
+            <select id="storage-size">
+                <option value="small">Small - 5x5</option>
+                <option value="medium">Medium - 10x10</option>
+                <option value="large">Large - 15x15</option>
+            </select>
+
+            <label for="location-selection">Select Location</label>
+            <select id="location-selection">
+                <option value="location1">Location 1</option>
+                <option value="location2">Location 2</option>
+                <option value="location3">Location 3</option>
+            </select>
+
+            <label for="recurring-payment">Select Recurring Payment Period</label>
+            <select id="recurring-payment">
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="annually">Annually</option>
+            </select>
+
+            <label for="payment-method">Select Payment Method</label>
+            <select id="payment-method">
+                <option value="credit-card">Credit Card</option>
+                <option value="paypal">PayPal</option>
+                <option value="bank-transfer">Bank Transfer</option>
+            </select>
+
+            <label for="customer-email">Enter Your Email</label>
+            <input type="email" id="customer-email" placeholder="Enter your email" required>
+
+            <button onclick="confirmBooking()">Confirm Booking</button>
+        </div>
+    </section>
+
+
+    <script>
+        function confirmBooking() {
+            const unitSelection = document.getElementById("unit-selection").value;
+            const storageSize = document.getElementById("storage-size").value;
+            const locationSelection = document.getElementById("location-selection").value;
+            const recurringPayment = document.getElementById("recurring-payment").value;
+            const paymentMethod = document.getElementById("payment-method").value;
+            const customerEmail = document.getElementById("customer-email").value;
+
+            // Validate the form
+            if (!customerEmail) {
+                alert("Please enter a valid email.");
+                return;
+            }
+
+            // Prepare the data to be sent to the backend
+            const bookingDetails = {
+                unit: unitSelection,
+                storageSize: storageSize,
+                location: locationSelection,
+                recurringPeriod: recurringPayment,
+                paymentMethod: paymentMethod,
+                email: customerEmail,
+            };
+
+            // Send data to the backend to generate and send the invoice
+            fetch('/generate-invoice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingDetails),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Invoice has been sent to your email.');
+                } else {
+                    alert('There was an issue processing your payment.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing the request. Please try again later.');
+            });
+        }
+    </script>
+</body>
+</html>
