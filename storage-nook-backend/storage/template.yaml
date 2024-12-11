@@ -185,7 +185,7 @@ Resources:
             RestApiId:
               Ref: StorageApi
             Path: /storage-types/{typeId}/units
-            Method: POST
+            Method: post
             Auth:
               Authorizer: AdminCognitoAuthorizer
 

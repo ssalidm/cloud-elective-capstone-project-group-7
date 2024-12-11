@@ -60,6 +60,17 @@ def lambda_handler(event, context):
     Create units for a specific storage type.
     """
     try:
+        if event["httpMethod"] == "OPTIONS":
+            return {
+                "statusCode": 200,
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                },
+                "body": json.dumps({"message": "CORS preflight response"}),
+            }
+
         claims = event["requestContext"]["authorizer"]["claims"]
         groups = claims.get("cognito:groups", [])
         if "admin" not in groups:
@@ -69,7 +80,7 @@ def lambda_handler(event, context):
                 "headers": {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Methods": "POST",
                     "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 },
             }
@@ -85,8 +96,8 @@ def lambda_handler(event, context):
                 "headers": {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization,",
                 },
             }
 
@@ -101,8 +112,8 @@ def lambda_handler(event, context):
                 "headers": {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization,",
                 },
             }
 
@@ -131,8 +142,8 @@ def lambda_handler(event, context):
             "headers": {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
             },
         }
 
@@ -144,7 +155,7 @@ def lambda_handler(event, context):
             "headers": {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
+                "Access-Control-Allow-Methods": "POST",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
             },
         }

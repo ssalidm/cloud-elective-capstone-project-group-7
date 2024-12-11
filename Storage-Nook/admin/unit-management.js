@@ -37,9 +37,10 @@ document.getElementById('unit-form').addEventListener('submit', function(event) 
 
   // Make API call to add a new unit
   fetch('https://4gt9bjtqq1.execute-api.eu-west-1.amazonaws.com/dev/storage-type/locker/units', {
-      method: 'POST',
+      method: 'PUT',
       headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer eyJraWQiOiI4MFZRUHdjN2F3THNDOE9MbFdaaWFnTEJSVDZTbHhTY1Y0T2ZvdWgxZWpZPSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiU3Ywd29uSUNpMVFPdml4bWNwWjRZQSIsInN1YiI6ImMyYzU3NDU0LTgwMzEtNzA1Ny0zMzcwLTczNDUzNTNlZTcyZiIsImNvZ25pdG86Z3JvdXBzIjpbImFkbWluIl0sImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtd2VzdC0xLmFtYXpvbmF3cy5jb21cL2V1LXdlc3QtMV9pN2ZGRFJrQkMiLCJjb2duaXRvOnVzZXJuYW1lIjoiYzJjNTc0NTQtODAzMS03MDU3LTMzNzAtNzM0NTM1M2VlNzJmIiwiYXVkIjoiNDZoOWp1a2VndnQxbGs0YnA0djVwNHAwMjkiLCJldmVudF9pZCI6IjQ0ZjJiMGE4LTg0NWQtNDgwZS1hYjM2LWE2NmE4OWRkNThiZSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNzMzODcxNzc0LCJleHAiOjE3MzM4NzUzNzQsImlhdCI6MTczMzg3MTc3NCwianRpIjoiYThmODhlZTMtYzUzYy00MjM0LWJmZTktMmNlNGY4NGU4ZDliIiwiZW1haWwiOiJhZG1pbjFAZXhhbXBsZS5jb20ifQ.GGIL_RMJSW5Hxjl0wo2Mt9-gpWugbNzIUR3Bb5ikNXxQACBHqWncfiEmlw_HVSa090pq31C2gu9EdulWsDhuij1hx_X8KnCx_d4OL_cnByyazWI-aJDRmL_d4GgR7Jd6BBAhUrw8K-VM9CD4ASqIzjkNDUGcjRqaqZpUSD-7-e1CGC03e0TAMJS-lU7jxM3p-IFiiTQUH3mi_zn781fa7IT4RCHfZxp6YPRUQMgqOJacuZkwUegV_7CoKI0AOUxCOY8d5KFyJ0Iz6ZiHynWZAXfD62JrLVx7CYHxTDIE9mWEXkmieHWQlpZ95J_7jnkCs5SVLAJSRQZiQ13p3edXUw"
       },
       body: JSON.stringify(unitData)
   })
